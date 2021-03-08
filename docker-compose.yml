@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+    web:
+        image: hm-web
+        build: ./web
+        ports:
+            - 50080:80
+        networks:
+            - web-db
+        volumes:
+            - .\web:/var/www/html/
+        env_file:
+            - ./db/database_least_privileged_users.env
+        environment:
+            - TZ=CET
+
+    db:
+        image: mysql:8.0
+        # build: ./db
+        restart: always
+        command: --default-authentication-plugin=mysql_native_password
+        networks:
+            - web-db
+            - admin-db
+        volumes:
+            - house-manager:/var/lib/mysql
+        secrets:
+            - db_root_password
+            - db_database
+        environment:
+            - TZ=CET
+            - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
+            - MYSQL_DATABASE_FILE=/run/secrets/db_database
+
+    phpmyadmin:
+        image: phpmyadmin:5.0-apache
+        ports:
+            - 51080:80
+        networks:
+            - admin-db
+        secrets:
+            - db_root_password
+        environment:
+            - TZ=CET
+            - PMA_HOST=db
+            - PMA_USER=root
+            - PMA_PASSWORD_FILE=/run/secrets/db_root_password
+
+networks:
+    web-db:
+    admin-db:
+
+volumes:
+    house-manager:
+
+secrets:
+    db_root_password:
+        file: ./db/secrets/root_password
+    db_database:
+        file: ./db/secrets/database
