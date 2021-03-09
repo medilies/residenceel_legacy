@@ -40,6 +40,24 @@ class Api extends Database
         }
     }
 
+    public function insert_apts($apts_data)
+    {
+        $query = 'INSERT INTO houses(floor_nb, label, apt_type, surface, surface_real) VALUES';
+
+        foreach ($apts_data as $serie) {
+            foreach ($serie["floors"] as $floor) {
+                foreach ($serie["apts"] as $apt) {
+                    $query .= "($floor, '{$apt[0]}', '{$apt[1]}', '{$apt[2]}', '{$apt[3]}'),";
+                }
+            }
+        }
+        $query = substr($query, 0, -1);
+
+        $houses = $this->Insertor->prepare($query);
+        return $houses->execute();
+
+    }
+
     public function get_blocs()
     {
         $query1 = "SELECT * FROM blocs";

@@ -161,28 +161,48 @@ h5,
     font-size: var(--header5-size);
     line-height: var(--header5-line-h);
 }
-
 .body-text {
     font-size: var(--text-size);
     line-height: var(--text-line-h);
 }
-
 .u {
     text-decoration: underline;
 }
 
+.card {
+    padding: 1rem;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+        rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border-radius: 9px;
+    background: #fff;
+}
 .inline {
     display: inline-block;
+}
+
+.flex-row-base {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-end;
+}
+
+.bg-l-grey {
+    background: #ccc;
 }
 
 .w5 {
     width: 5rem;
 }
 
+.p1 {
+    padding: 1rem;
+}
+.p05 {
+    padding: 0.5rem;
+}
 .pl1 {
     padding-left: 1rem;
 }
-
 .pt1 {
     padding-top: 1rem;
 }
@@ -190,14 +210,16 @@ h5,
 .ml1 {
     margin-left: 1rem;
 }
+.mb1 {
+    margin-bottom: 1rem;
+}
+
 .aside-href {
     display: block;
 }
-
 .aside-focused-section {
     background-color: var(--primary-color);
 }
-
 .aside-focused-href {
     color: #fff;
 }

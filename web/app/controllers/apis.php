@@ -34,6 +34,47 @@ class Apis extends Controller
 
     }
 
+    public function insert_apts()
+    {
+
+        // print_r($_POST);
+
+        $bloc = $_POST["bloc_id"];
+
+        $floors = [];
+        for ($i = 0; $i < 20; $i++) {
+            $current_floors_key = "floors-" . $i;
+            if (array_key_exists($current_floors_key, $_POST)) {
+                $floors[$i]["floors"] = explode(";", $_POST[$current_floors_key]);
+                $floors[$i]["apts"] = [];
+
+                for ($j = 0; $j < 20; $j++) {
+                    $names_iterator = "-" . $j . "-" . $i;
+
+                    if (array_key_exists("apt_label" . $names_iterator, $_POST)) {
+
+                        array_push(
+                            $floors[$i]["apts"],
+                            [
+                                $_POST["apt_label" . $names_iterator],
+                                $_POST["apt_type" . $names_iterator],
+                                $_POST["apt_Surf" . $names_iterator],
+                                $_POST["apt_Surf_r" . $names_iterator],
+                            ]
+                        );
+                    }
+                }
+
+            }
+        }
+
+        if ($this->ApiModel->insert_apts($floors)) {
+            echo "successful insertion";
+        } else {
+            echo "failure";
+        }
+    }
+
     public function get_blocs()
     {
 
