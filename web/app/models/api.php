@@ -83,6 +83,23 @@ class Api extends Database
         } else {
             return false;
         }
+    }
 
+    public function get_free_apts()
+    {
+        $query = "SELECT *
+            FROM houses
+            WHERE houses.house_id
+                NOT IN (SELECT deals.house_id FROM deals)";
+
+        $apts = $this->Selector->prepare($query);
+        $apts->execute();
+
+        if ($apts->rowCount() > 0) {
+            $apts = $apts->fetchAll();
+            return $apts;
+        } else {
+            return false;
+        }
     }
 }

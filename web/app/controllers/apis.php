@@ -89,6 +89,18 @@ class Apis extends Controller
 
     }
 
+    public function get_free_apts()
+    {
+        $apts = $this->ApiModel->get_free_apts();
+
+        if ($apts) {
+            header('content-type: text/json');
+            echo json_encode($apts);
+        } else {
+            echo "no apts recorded";
+        }
+    }
+
     private function missing_required_data(array $required_data, $checking_array)
     {
         foreach ($required_data as $name) {

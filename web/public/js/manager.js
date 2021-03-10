@@ -28,6 +28,40 @@ class UI {
         this.container.appendChild(searchAptDiv);
     }
 
+    displayFreeApts() {
+        const freeAptsData = JSON.parse(sessionStorage.getItem("freeApts"));
+        console.log(freeAptsData);
+
+        const displayFreeApts_div = document.createElement("div");
+
+        let table = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Etage</th>
+                <th>Apartement</th>
+                <th>Surface</th>
+                <th>Surface réelle</th>
+            </tr>
+        `;
+        freeAptsData.forEach((house) => {
+            table += `
+            <tr>
+                <td>${house.house_id}</td>
+                <td>${house.floor_nb}</td>
+                <td>${house.label}</td>
+                <td>${house.surface}</td>
+                <td>${house.surface_real}</td>
+            </tr>
+            `;
+        });
+        table += "</table>";
+        displayFreeApts_div.innerHTML = table;
+
+        this.emptyContainer();
+        this.container.appendChild(displayFreeApts_div);
+    }
+
     insBloc() {
         const insBlocDiv = document.createElement("div");
 
@@ -288,6 +322,17 @@ class Fetcher {
 
         return blocs;
     }
+
+    getFreeApts() {
+        fetch("http://localhost:50080/apis/get_free_apts")
+            .then((res) => res.json())
+            .then((json) => {
+                sessionStorage.setItem("freeApts", JSON.stringify(json));
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
+    }
 }
 // *****************************************************
 //                  MAIN SCOPE
@@ -329,6 +374,9 @@ function locationChanges() {
     const hash = window.location.hash;
     if (hash === "#srch-apt") {
         ui.searchApt();
+    } else if (hash === "#srch-apt-free") {
+        fetcher.getFreeApts();
+        ui.displayFreeApts();
     } else if (hash === "#ins-bloc") {
         ui.insBloc();
 
