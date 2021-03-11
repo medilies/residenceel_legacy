@@ -18,7 +18,8 @@
 </aside>
 
 <main class="p1">
-
+    <div id="forms-container"></div>
+    <div id="reports-container"></div>
 </main>
 
 <?php $content = ob_get_clean();?>

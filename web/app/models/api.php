@@ -5,38 +5,57 @@ class Api extends Database
     public function __construct()
     {
         $this->set_db_users(['INSERT', 'SELECT']);
-
     }
 
-    public function insert_block($bloc_data)
+    public function insert_block(string $bloc_id, int $bloc_floors_nb, array $apts_and_types)
     {
+        // VALIDATION:
+        foreach ($apts_and_types as $apt) {
+            $apt_label = $apt[0];
+            $apt_type = $apt[1];
+            if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
+                return [
+                    "REPORT" => "INVALID_DATA",
+                    "CONTENT" => "Tag d'apartement $apt_label invalid! FORME VALIDE: $bloc_id-[1-8] ",
+                ];
+            }
+            if (!$this->is_valid_apt_type($apt_type)) {
+                return [
+                    "REPORT" => "INVALID_DATA",
+                    "CONTENT" => "Type d'apartement $apt_type est invalid! FORME VALIDE: F[1-5] ",
+                ];
+            }
+        }
+
+        // >>>>>>>>>>>>>>>>>>> CHECK IF USER INPUT ISN'T IN DB "UNIQUE"!!!
 
         try {
-            $query1 = 'INSERT INTO blocs(bloc_id, floors_nb, apt_types) VALUES(:bloc_id, :floors_nb, :apt_types)';
-
+            $query1 = 'INSERT INTO blocs(bloc_id, floors_nb) VALUES(:bloc_id, :floors_nb)';
             $bloc = $this->Insertor->prepare($query1);
-
-            $bloc->bindParam(':bloc_id', $bloc_data['bloc_id'], PDO::PARAM_STR);
-            $bloc->bindParam(':floors_nb', $bloc_data['floors_nb'], PDO::PARAM_INT);
-            $bloc->bindParam(':apt_types', $bloc_data['apt_types'], PDO::PARAM_STR);
-
+            $bloc->bindParam(':bloc_id', $bloc_id, PDO::PARAM_STR);
+            $bloc->bindParam(':floors_nb', $bloc_floors_nb, PDO::PARAM_INT);
             if ($bloc->execute()) {
-                $apts = explode(";", $bloc_data["apt_labels"]);
-
-                $query2 = 'INSERT INTO apts(label, bloc_id) VALUES';
-                foreach ($apts as $apt) {
-                    // validate apt values
-                    $query2 .= "('$apt','" . $bloc_data['bloc_id'] . "'),";
+                //
+                $query2 = 'INSERT INTO apts(apt_label, apt_type, bloc_id) VALUES';
+                foreach ($apts_and_types as $apt) {
+                    $apt_label = $apt[0];
+                    $apt_type = $apt[1];
+                    $query2 .= "('$apt_label','$apt_type','$bloc_id'),";
                 }
                 $query2 = substr($query2, 0, -1);
-
-                $apts = $this->Insertor->prepare($query2);
-
-                return $apts->execute();
+                $apts_and_types = $this->Insertor->prepare($query2);
+                if ($apts_and_types->execute()) {
+                    return [
+                        "REPORT" => "SUCCESSFUL_INSERTION",
+                        "CONTENT" => "Le bloc $bloc_id est enregistré avec succes!",
+                    ];
+                }
             }
-
         } catch (PDOException $e) {
-            print "Error!: " . $e->getMessage() . "<br/>";
+            return [
+                "REPORT" => "ERROR",
+                "CONTENT" => $e->getMessage(),
+            ];
         }
     }
 
@@ -98,6 +117,30 @@ class Api extends Database
         if ($apts->rowCount() > 0) {
             $apts = $apts->fetchAll();
             return $apts;
+        } else {
+            return false;
+        }
+    }
+
+    private function is_valid_apt_type(string $apt_type): bool
+    {
+        if (
+            preg_match("/^F[2-5]$/", $apt_type)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    private function is_valide_apt_to_bloc($apt_label, $bloc_id)
+    {
+        if (
+            strpos($apt_label, $bloc_id) === 0 &&
+            preg_match("/^$bloc_id-[1-8]$/", $apt_label)
+        ) {
+            return true;
         } else {
             return false;
         }

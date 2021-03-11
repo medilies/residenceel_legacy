@@ -1,21 +1,22 @@
-/**
- * - **add** & **rm** identify buttons
- * - **select** identifies select form elements
- */
 class UI {
     /**
      *
-     * @param {HTMLDivElement} container
+     * @param {HTMLDivElement} formsContainer
+     * @param {HTMLDivElement} reportsContainer
      */
-    constructor(container) {
-        this.container = container;
+    constructor(formsContainer, reportsContainer) {
+        this.formsContainer = formsContainer;
+        this.reportsContainer = reportsContainer;
+
+        this.insBloc_AptInputNameIterator = 0;
+
         this.insApts_FloorsInputNameIterator = 0;
         this.insApts_AptInputNameIterator = 0;
         this.insApts_submitable = false; // Unused .....
     }
 
     emptyContainer() {
-        this.container.innerHTML = "";
+        this.formsContainer.innerHTML = "";
     }
 
     searchApt() {
@@ -25,7 +26,7 @@ class UI {
         searchAptDiv.appendChild(selectBloc);
 
         this.emptyContainer();
-        this.container.appendChild(searchAptDiv);
+        this.formsContainer.appendChild(searchAptDiv);
     }
 
     displayFreeApts() {
@@ -59,36 +60,117 @@ class UI {
         displayFreeApts_div.innerHTML = table;
 
         this.emptyContainer();
-        this.container.appendChild(displayFreeApts_div);
+        this.formsContainer.appendChild(displayFreeApts_div);
     }
 
+    /**
+     * - Creates a form this targetable with an ID
+     * - The form has 3 buttons
+     * - - ADD apartement, targetable with an attr
+     * - - RM last apartement, targetable with an attr
+     * - - Submit form button
+     *
+     * FORM validation on client side depends on HTML FORM INPUT attributes (MIN, MAX, LIST, PATTERN)
+     *
+     * @param {Number} insBloc_AptInputNameIterator is a very vital virable for this form:
+     * - It insures that apt_label & apt_type are in synch
+     * - It insures max apts/floor
+     * - Sets added apt default value
+     *
+     */
     insBloc() {
-        const insBlocDiv = document.createElement("div");
+        const insBloc_div = document.createElement("div");
 
-        this.insBlocFormId = "ins-bloc";
+        this.insBloc_form_id = "insBloc";
+        this.insBloc_blocIdInput_id = "insBloc-bloc";
+        this.insBloc_addApt_attr = "insBloc_addApt";
+        this.insBloc_rmApt_attr = "insBloc_rmApt";
+        this.insBloc_submitBtn_id = "insBloc-submit-btn";
+        this.insBloc_aptContainerDiv_id = "insBloc-apt-container";
 
-        insBlocDiv.innerHTML = `
-            <form id="${this.insBlocFormId}">
+        insBloc_div.innerHTML = `
+            <form id="${this.insBloc_form_id}">
 
                 <label for="bloc_id">Nom du bloc</label>
-                <input name="bloc_id" type="text" placeholder="A1..." required/>
+                <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]*" class="w5"/>
                 
                 <label for="floors_nb">Nombre des étages</label>
-                <input name="floors_nb" type="number" placeholder="5..." required class="w5"/>
+                <input name="floors_nb" type="number" min="5" max="20" placeholder="5..." required class="w3"/>
                 
-                <label for="apt_labels">Apartements</label>
-                <input name="apt_labels" type="text" placeholder="A1-1;A1-2;A1-3..." required/>
-                
-                <label for="apt_types">types d'apartements</label>
-                <input name="apt_types" type="text" placeholder="F2;F3;F4..." required/>
+                <button name="insBloc" type="button" ${this.insBloc_addApt_attr} class="inline">Ajouter un apartement</button>
 
-                <button name="insBloc" type="submit">Valider</button>
+                <button type="button" ${this.insBloc_rmApt_attr} class="w18 inline">Retirer le dernier apartement</button>
+
+                <div id="${this.insBloc_aptContainerDiv_id}"></div>
+                <datalist id="chambres">
+                  <option value="F2">
+                  <option value="F3">
+                  <option value="F4">
+                  <option value="F5">
+                </datalist>
+                
+                <button name="insBloc" type="submit" id="${this.insBloc_submitBtn_id}">Valider</button>
                 
             </form>
         `;
 
         this.emptyContainer();
-        this.container.appendChild(insBlocDiv);
+        this.formsContainer.appendChild(insBloc_div);
+    }
+
+    insBloc_addApt() {
+        // MAX 8 apts/floor
+        if (this.insBloc_AptInputNameIterator >= 8) return;
+
+        const blocIdInput = document.querySelector(
+            "#" + this.insBloc_blocIdInput_id
+        );
+        const aptLabelBlocPrefix = blocIdInput.value;
+        // Bloc tag must be set
+        if (aptLabelBlocPrefix === "") {
+            return;
+        }
+        // block tag is set. then lock its input
+        else {
+            blocIdInput.setAttribute("readonly", "");
+            blocIdInput.classList.add("locked-input");
+        }
+
+        const aptLabelName = "apt_label-" + this.insBloc_AptInputNameIterator;
+        const aptTypeName = "apt_type-" + this.insBloc_AptInputNameIterator;
+        // Default value start from 1 unlike names that start from 0
+        this.insBloc_AptInputNameIterator++;
+        const aptLabelDefaultValue = `${aptLabelBlocPrefix}-${this.insBloc_AptInputNameIterator}`;
+
+        const apt = document.createElement("div");
+        apt.classList.add("flex-row-base");
+        apt.innerHTML = `
+            <div class="ml1">
+                <label for="${aptLabelName}">Apartement</label>
+                <input name="${aptLabelName}" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]*-[1-8]" class="w5"/>
+            </div>
+            
+            <div class="ml1">
+                <label for="${aptTypeName}">Type</label>
+                <input name="${aptTypeName}" type="text" placeholder="F2,F3..." required pattern="F[2-5]" list="chambres" class="w4"/>
+            </div>
+        `;
+
+        const aptContainer = document.querySelector(
+            "#" + this.insBloc_aptContainerDiv_id
+        );
+        aptContainer.appendChild(apt);
+    }
+
+    insBloc_rmApt() {
+        if (this.insBloc_AptInputNameIterator > 0) {
+            document
+                .querySelector(
+                    "#" + this.insBloc_aptContainerDiv_id + ">div:last-child"
+                )
+                .remove();
+            this.insBloc_AptInputNameIterator--;
+        }
     }
 
     insApts() {
@@ -138,7 +220,7 @@ class UI {
         `;
 
         this.emptyContainer();
-        this.container.appendChild(insApt_div);
+        this.formsContainer.appendChild(insApt_div);
     }
 
     insApts_addFloor() {
@@ -251,6 +333,28 @@ class UI {
 
         return [aptLabel, aptType, aptSurf, aptSurfR];
     }
+
+    /**
+     *
+     * @param {object} reportObj contains 2 keys:
+     * - REPORT: specifies the nature
+     * - CONTENT: Contains the message
+     */
+    appendReportDiv(reportObj) {
+        const report = document.createElement("div");
+        report.innerHTML = new Date() + "<br>" + reportObj.CONTENT;
+        if (reportObj.REPORT === "SUCCESSFUL_INSERTION") {
+            report.classList.add("report", "success-report");
+        } else if (reportObj.REPORT === "INVALID_DATA") {
+            report.classList.add("report", "invalid-input-report");
+        } else if (reportObj.REPORT === "ERROR") {
+            report.classList.add("report", "err-report");
+        } else if (reportObj.REPORT === "MISSING_DATA") {
+            report.classList.add("report", "missing-input-report");
+        }
+
+        this.reportsContainer.prepend(report);
+    }
 }
 
 class FormSubmitter {
@@ -260,15 +364,29 @@ class FormSubmitter {
         this.port = window.location.port;
     }
 
-    submitNewBloc(formData) {
+    insBloc_submit(formData) {
         fetch("http://localhost:50080/apis/insert_block", {
             method: "post",
             body: formData,
         })
-            .then((res) => res.text())
-            .then((body) => console.log(body))
+            .then((res) => res.json())
+            .then((json) => {
+                console.log(json);
+
+                ui.appendReportDiv(json);
+
+                if (json.REPORT === "SUCCESSFUL_INSERTION")
+                    setTimeout(() => {
+                        window.location = window.location.origin;
+                    }, 2000);
+                else {
+                    document.querySelector(
+                        "#" + ui.insBloc_submitBtn_id
+                    ).style.display = "block";
+                }
+            })
             .catch((err) => {
-                console.warn(err);
+                throw err;
             });
     }
 
@@ -338,11 +456,15 @@ class Fetcher {
 //                  MAIN SCOPE
 // *****************************************************
 
-const ui = new UI(document.querySelector("main"));
+const ui = new UI(
+    document.querySelector("#forms-container"),
+    document.querySelector("#reports-container")
+);
 const formSubmitter = new FormSubmitter();
 const fetcher = new Fetcher();
 
-fetcher.getBlocs();
+//
+// fetcher.getBlocs();
 
 const asideMenu = document.querySelector("aside > div");
 asideMenu.addEventListener("click", (e) => {
@@ -379,14 +501,7 @@ function locationChanges() {
         ui.displayFreeApts();
     } else if (hash === "#ins-bloc") {
         ui.insBloc();
-
-        const insBlocForm = document.querySelector("#" + ui.insBlocFormId);
-
-        insBlocForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            formSubmitter.submitNewBloc(new FormData(insBlocForm));
-        });
+        insBloc_eventListeners();
     } else if (hash === "#ins-apt") {
         // check if blocsData is set in session storage >>>>>>>>>>>>
         ui.insApts();
@@ -424,6 +539,29 @@ function insApts_eventListeners() {
             ui.insApts_addApt(target);
         } else if (target.hasAttribute(ui.insApts_rmApt_attr)) {
             target.parentElement.remove();
+        }
+    });
+}
+
+function insBloc_eventListeners() {
+    const insBlocForm = document.querySelector("#" + ui.insBloc_form_id);
+
+    insBlocForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        document.querySelector("#" + ui.insBloc_submitBtn_id).style.display =
+            "none";
+
+        formSubmitter.insBloc_submit(new FormData(insBlocForm));
+    });
+
+    insBlocForm.addEventListener("click", (e) => {
+        const target = e.target;
+
+        if (target.hasAttribute(ui.insBloc_addApt_attr)) {
+            ui.insBloc_addApt();
+        } else if (target.hasAttribute(ui.insBloc_rmApt_attr)) {
+            ui.insBloc_rmApt();
         }
     });
 }

@@ -2,24 +2,24 @@ use hm;
 
 CREATE TABLE blocs(
     bloc_id VARCHAR(3) PRIMARY KEY,
-    floors_nb INTEGER NOT NULL,
-    apt_types VARCHAR(20) NOT NULL
+    floors_nb INTEGER NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE apts(
-    label VARCHAR(6) PRIMARY KEY,
+    apt_label VARCHAR(6) PRIMARY KEY,
     bloc_id VARCHAR(6),
+    apt_type VARCHAR(3) NOT NULL,
     FOREIGN KEY (bloc_id) REFERENCES blocs(bloc_id) on DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE houses(
     house_id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    label VARCHAR(6) NOT NULL,
+    house_hash VARCHAR(100) UNIQUE,
+    apt_label VARCHAR(6) NOT NULL,
     floor_nb INTEGER NOT NULL,
     surface FLOAT NOT NULL,
     surface_real FLOAT NOT NULL,
-    apt_type VARCHAR(2) NOT NULL,
-    FOREIGN KEY (label) REFERENCES apts(label) on DELETE CASCADE
+    FOREIGN KEY (apt_label) REFERENCES apts(apt_label) on DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE clients(
