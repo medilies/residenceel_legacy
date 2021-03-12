@@ -9,10 +9,7 @@ class UI {
         this.reportsContainer = reportsContainer;
 
         this.insBloc_AptInputNameIterator = 0;
-
         this.insApts_FloorsInputNameIterator = 0;
-        this.insApts_AptInputNameIterator = 0;
-        this.insApts_submitable = false; // Unused .....
     }
 
     emptyContainer() {
@@ -92,7 +89,7 @@ class UI {
             <form id="${this.insBloc_form_id}">
 
                 <label for="bloc_id">Nom du bloc</label>
-                <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]*" class="w5"/>
+                <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]?" class="w5"/>
                 
                 <label for="floors_nb">Nombre des étages</label>
                 <input name="floors_nb" type="number" min="5" max="20" placeholder="5..." required class="w3"/>
@@ -147,7 +144,7 @@ class UI {
         apt.innerHTML = `
             <div class="ml1">
                 <label for="${aptLabelName}">Apartement</label>
-                <input name="${aptLabelName}" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]*-[1-8]" class="w5"/>
+                <input name="${aptLabelName}" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
             </div>
             
             <div class="ml1">
@@ -177,7 +174,7 @@ class UI {
         // Mondatory >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         // check if it is set before showing the form
         const blocsData = JSON.parse(sessionStorage.getItem("blocs"));
-        console.log(blocsData);
+        // console.table(blocsData);
 
         /**
          * Targets identifiers
@@ -186,12 +183,9 @@ class UI {
         this.insApts_form_id = "insApts";
         this.insApts_selectBloc_id = "insApts-select-bloc";
         this.insApts_addFloors_attr = "insApts_AddFloors";
-        this.insApts_floorsContainerDiv_id = "insApts-floors-container";
-        //2nd
-        this.insApts_addApt_attr = "insApts_addApt";
         this.insApts_rmFloor_attr = "insApts_rmFloor";
-        //3rd
-        this.insApts_rmApt_attr = "insApts_rmApt";
+        this.insApts_submitBtn_id = "insApts_submit-btn";
+        this.insApts_floorsContainerDiv_id = "insApts-floors-container";
 
         // Create form with container for adding floors & apts
         const insApt_div = document.createElement("div");
@@ -211,11 +205,17 @@ class UI {
                 this.insApts_addFloors_attr
             }>Inserer une serie d'étages</button>
 
+            <button type="button" class="inline w21" ${
+                this.insApts_rmFloor_attr
+            }>Supprimer la derniere serie d'étages</button>
+
             <div id="${
                 this.insApts_floorsContainerDiv_id
             }" class="bg-l-grey p05"></div>
             
-            <button type="submit" class="inline" ">Valider</button>
+            <button id="${
+                this.insApts_submitBtn_id
+            }" type="submit" class="inline" ">Valider</button>
         </form>
         `;
 
@@ -224,114 +224,83 @@ class UI {
     }
 
     insApts_addFloor() {
+        // Mondatory >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // check if it is set before showing the form
+        const blocsData = JSON.parse(sessionStorage.getItem("blocs"));
+
         const floorsContainer = document.querySelector(
             "#" + this.insApts_floorsContainerDiv_id
         );
 
-        const floorsName = "floors-" + this.insApts_FloorsInputNameIterator;
-        this.insApts_FloorsInputNameIterator++;
+        // will iterate inside insApts_floorApts()
+        const i = this.insApts_FloorsInputNameIterator;
 
         const floors = document.createElement("div");
         floors.classList.add("card", "mb1");
         floors.innerHTML = `
-            <label for="${floorsName}">Etages</label>
-            <input name="${floorsName}" required class="inline"/>
-            
-            <button type="button" class="inline" ${this.insApts_addApt_attr}>Ajouter des appartements</button>
-            
-            <button type="button" class="inline" ${this.insApts_rmFloor_attr}>Supprimer les étages</button>
-            `;
+        <label for="floors">Etages</label>
+        <input name="floors[${i}][floors]" placeholder="3;5;6;9;..." pattern="([0-9]+;)*[0-9]+(;)?" required class="inline"/>
+        
+        ${this.insApts_floorApts(blocsData)}
+        `;
 
         floorsContainer.appendChild(floors);
     }
 
-    insApts_addApt(target) {
-        const blocsData = JSON.parse(sessionStorage.getItem("blocs"));
+    insApts_rmFloor() {
+        if (this.insApts_FloorsInputNameIterator > 0) {
+            document
+                .querySelector(
+                    "#" + this.insApts_floorsContainerDiv_id + ">div:last-child"
+                )
+                .remove();
+            this.insApts_FloorsInputNameIterator--;
+        }
+    }
 
-        // Etages input element name
-        const currentFloorsInputNameIterator = target.parentElement
-            .querySelector("input")
-            .name.split("-")[1];
-        const [
-            aptName,
-            aptTypeName,
-            aptSurfName,
-            aptSurfRName,
-        ] = this.insApt_setAptFielsNames(currentFloorsInputNameIterator);
+    insApts_floorApts(blocsData) {
+        let aptsDivs = "";
+        console.table(blocsData);
 
-        const currentBlock = document.querySelector(
+        const blocSelect = document.querySelector(
             "#" + this.insApts_selectBloc_id
-        ).value;
-        let currentLabels, currentTypes;
+        );
+        blocSelect.style.pointerEvents = "none";
+        blocSelect.classList.add("locked-input");
+        const bloc_id = blocSelect.value;
+
+        const i = this.insApts_FloorsInputNameIterator;
+
         blocsData.forEach((bloc) => {
-            if (bloc.bloc_id === currentBlock) {
-                currentLabels = bloc.apts;
-                currentTypes = bloc.apt_types.split(";");
+            if (bloc.bloc_id === bloc_id) {
+                bloc.apts.forEach((apt, j) => {
+                    aptsDivs += `
+                    <div class="flex-row-base">
+                        <div class="ml1">
+                            <label for"apt">Apartement</label>
+                            <input name="floors[${i}][houses][${j}][apt_label]" type="text" required readonly value="${apt[0]}" class="w3 locked-input">
+                        </div>
+                        <div class="ml1">
+                            <label>Type</label>
+                            <input readonly value="${apt[1]}" class="w3 locked-input">
+                        </div>
+                        <div class="ml1">
+                            <label for"surf">Surface</label>
+                            <input name="floors[${i}][houses][${j}][surface]" type="number" required min="50.00" max="200.00" step="0.01" class="w5">
+                        </div>
+                        <div class="ml1">
+                            <label for"surfR">Surface utile</label>
+                            <input name="floors[${i}][houses][${j}][surface_real]" type="number" min="50.00" max="200.00" required step="0.01" class="w5">
+                        </div>
+            
+                    </div>    
+                    `;
+                });
             }
         });
 
-        const apt = document.createElement("div");
-        apt.classList.add("flex-row-base");
-        apt.innerHTML = `
-        <div class="ml1">
-            <label for"${aptName}">Apartement</label>
-            <select name="${aptName}" required class="w5">
-                ${currentLabels.map(
-                    (apt) =>
-                        `<option value="${apt.label}">${apt.label}</option>`
-                )}
-            </select>
-        </div>
-
-        <div class="ml1">
-            <label for"${aptTypeName}">Types</label>
-            <select name="${aptTypeName}" required class="w5">
-                ${currentTypes.map(
-                    (type) => `<option value="${type}">${type}</option>`
-                )}
-            </select>
-        </div>
-
-        <div class="ml1">
-            <label for"${aptSurfName}">Surface</label>
-            <input name="${aptSurfName}" required class="w5">
-        </div>
-
-        <div class="ml1">
-            <label for"${aptSurfRName}">Surface réelle</label>
-            <input name="${aptSurfRName}" required class="w5">
-        </div>
-
-        <button type="button" class="ml1" ${
-            this.insApts_rmApt_attr
-        }>Supprimer l'apartement</button>
-        `;
-
-        target.parentElement.appendChild(apt);
-    }
-
-    /**
-     * IMPORTANT "-" character is used as a separator!!!
-     *
-     * - The floor iterator groups apartements by common floors
-     * - The apartement iterator groups a single apartement details together
-     *
-     * @param {string} currentFloorsInputNameIterator
-     * @returns
-     */
-    insApt_setAptFielsNames(currentFloorsInputNameIterator) {
-        const f = currentFloorsInputNameIterator;
-        const a = this.insApts_AptInputNameIterator;
-        const iterators = "-" + a + "-" + f;
-
-        const aptLabel = "apt_label" + iterators;
-        const aptType = "apt_type" + iterators;
-        const aptSurf = "apt_Surf" + iterators;
-        const aptSurfR = "apt_Surf_r" + iterators;
-
-        this.insApts_AptInputNameIterator++;
-
-        return [aptLabel, aptType, aptSurf, aptSurfR];
+        this.insApts_FloorsInputNameIterator++;
+        return aptsDivs;
     }
 
     /**
@@ -372,34 +341,38 @@ class FormSubmitter {
             .then((res) => res.json())
             .then((json) => {
                 console.log(json);
-
-                ui.appendReportDiv(json);
-
-                if (json.REPORT === "SUCCESSFUL_INSERTION")
-                    setTimeout(() => {
-                        window.location = window.location.origin;
-                    }, 2000);
-                else {
-                    document.querySelector(
-                        "#" + ui.insBloc_submitBtn_id
-                    ).style.display = "block";
-                }
+                this.#formSubmitIncomeAction(json, ui.insBloc_submitBtn_id);
             })
             .catch((err) => {
                 throw err;
             });
     }
 
-    submitNewApts(formData) {
+    insApts_submit(formData) {
         fetch("http://localhost:50080/apis/insert_apts", {
             method: "post",
             body: formData,
         })
-            .then((res) => res.text())
-            .then((body) => console.log(body))
+            .then((res) => res.json())
+            .then((json) => {
+                console.log(json);
+                this.#formSubmitIncomeAction(json, ui.insApts_submitBtn_id);
+            })
             .catch((err) => {
-                console.warn(err);
+                throw err;
             });
+    }
+
+    #formSubmitIncomeAction(json, submitBtnId) {
+        ui.appendReportDiv(json);
+
+        if (json.REPORT === "SUCCESSFUL_INSERTION")
+            setTimeout(() => {
+                window.location = window.location.origin;
+            }, 2000);
+        else {
+            document.querySelector("#" + submitBtnId).style.display = "block";
+        }
     }
 }
 
@@ -414,28 +387,43 @@ class Fetcher {
         fetch("http://localhost:50080/apis/get_blocs")
             .then((res) => res.json())
             .then((json) => {
-                const blocs = this.#mapAptsToBloc(json);
-                sessionStorage.setItem("blocs", JSON.stringify(blocs));
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    console.log(json);
+                    const blocs = this.#joinAptsToBloc(json.CONTENT);
+                    sessionStorage.setItem("blocs", JSON.stringify(blocs));
+                    // console.table(blocs);
+                }
+                // >>>>>>>>>>> display the notice
             })
             .catch((err) => {
                 console.warn(err);
             });
     }
 
-    #mapAptsToBloc(json) {
-        const blocs = json[0];
-        const apts = json[1];
+    /**
+     * JOIN bloc_id
+     * @param {object} json
+     * @returns
+     */
+    #joinAptsToBloc(json) {
+        const jsonBlocs = json[0];
+        const jsonApts = json[1];
 
-        blocs.forEach((bloc) => {
-            bloc.apts = [];
-            apts.forEach((apt) => {
-                const aptLabelBlocPart = apt.label.substr(
-                    0,
-                    bloc.bloc_id.length
-                );
+        const blocs = [];
 
-                if (aptLabelBlocPart === bloc.bloc_id) bloc.apts.push(apt);
+        jsonBlocs.forEach((bloc) => {
+            let temp = {};
+            temp.bloc_id = bloc.bloc_id;
+            temp.floors_nb = bloc.floors_nb;
+            temp.apts = [];
+
+            jsonApts.forEach((apt) => {
+                if (bloc.bloc_id === apt.bloc_id) {
+                    temp.apts.push([..."", apt.apt_label, apt.apt_type]);
+                }
             });
+
+            blocs.push(temp);
         });
 
         return blocs;
@@ -445,6 +433,7 @@ class Fetcher {
         fetch("http://localhost:50080/apis/get_free_apts")
             .then((res) => res.json())
             .then((json) => {
+                console.log(json);
                 sessionStorage.setItem("freeApts", JSON.stringify(json));
             })
             .catch((err) => {
@@ -463,8 +452,8 @@ const ui = new UI(
 const formSubmitter = new FormSubmitter();
 const fetcher = new Fetcher();
 
-//
-// fetcher.getBlocs();
+fetcher.getBlocs();
+fetcher.getFreeApts();
 
 const asideMenu = document.querySelector("aside > div");
 asideMenu.addEventListener("click", (e) => {
@@ -497,7 +486,6 @@ function locationChanges() {
     if (hash === "#srch-apt") {
         ui.searchApt();
     } else if (hash === "#srch-apt-free") {
-        fetcher.getFreeApts();
         ui.displayFreeApts();
     } else if (hash === "#ins-bloc") {
         ui.insBloc();
@@ -515,7 +503,7 @@ function insApts_eventListeners() {
     insApt_form.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        formSubmitter.submitNewApts(new FormData(insApt_form));
+        formSubmitter.insApts_submit(new FormData(insApt_form));
     });
 
     /**
@@ -534,11 +522,7 @@ function insApts_eventListeners() {
         if (target.hasAttribute(ui.insApts_addFloors_attr)) {
             ui.insApts_addFloor();
         } else if (target.hasAttribute(ui.insApts_rmFloor_attr)) {
-            target.parentElement.remove();
-        } else if (target.hasAttribute(ui.insApts_addApt_attr)) {
-            ui.insApts_addApt(target);
-        } else if (target.hasAttribute(ui.insApts_rmApt_attr)) {
-            target.parentElement.remove();
+            ui.insApts_rmFloor();
         }
     });
 }
