@@ -225,12 +225,15 @@ class Api extends Database
         }
     }
 
-    public function get_free_apts()
+    public function get_free_houses()
     {
-        $query = "SELECT *
+        $query = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_hash, houses.surface, houses.surface_real
             FROM houses
+            JOIN apts
+            ON houses.apt_label = apts.apt_label
             WHERE houses.house_id
-                NOT IN (SELECT deals.house_id FROM deals)";
+                NOT IN (SELECT deals.house_id FROM deals)
+            ORDER BY apts.bloc_id, houses.floor_nb";
 
         $apts = $this->Selector->prepare($query);
         $apts->execute();

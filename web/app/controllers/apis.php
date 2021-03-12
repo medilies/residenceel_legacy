@@ -73,22 +73,14 @@ class Apis extends Controller
 
     public function get_blocs()
     {
-
         $blocs = $this->ApiModel->get_blocs();
         echo json_encode($blocs);
-
     }
 
-    public function get_free_apts()
+    public function get_free_houses()
     {
-        $apts = $this->ApiModel->get_free_apts();
-
-        if ($apts) {
-            header('content-type: text/json');
-            echo json_encode($apts);
-        } else {
-            echo "no apts recorded";
-        }
+        $free_houses = $this->ApiModel->get_free_houses();
+        echo json_encode($free_houses);
     }
 
     /**

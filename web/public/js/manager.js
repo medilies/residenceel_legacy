@@ -26,40 +26,6 @@ class UI {
         this.formsContainer.appendChild(searchAptDiv);
     }
 
-    displayFreeApts() {
-        const freeAptsData = JSON.parse(sessionStorage.getItem("freeApts"));
-        console.log(freeAptsData);
-
-        const displayFreeApts_div = document.createElement("div");
-
-        let table = `
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Etage</th>
-                <th>Apartement</th>
-                <th>Surface</th>
-                <th>Surface réelle</th>
-            </tr>
-        `;
-        freeAptsData.forEach((house) => {
-            table += `
-            <tr>
-                <td>${house.house_id}</td>
-                <td>${house.floor_nb}</td>
-                <td>${house.label}</td>
-                <td>${house.surface}</td>
-                <td>${house.surface_real}</td>
-            </tr>
-            `;
-        });
-        table += "</table>";
-        displayFreeApts_div.innerHTML = table;
-
-        this.emptyContainer();
-        this.formsContainer.appendChild(displayFreeApts_div);
-    }
-
     /**
      * - Creates a form this targetable with an ID
      * - The form has 3 buttons
@@ -260,7 +226,7 @@ class UI {
 
     insApts_floorApts(blocsData) {
         let aptsDivs = "";
-        console.table(blocsData);
+        // console.table(blocsData);
 
         const blocSelect = document.querySelector(
             "#" + this.insApts_selectBloc_id
@@ -301,6 +267,44 @@ class UI {
 
         this.insApts_FloorsInputNameIterator++;
         return aptsDivs;
+    }
+
+    displayFreeHouses() {
+        const freeAptsData = JSON.parse(sessionStorage.getItem("freeApts"));
+        // console.table(freeAptsData);
+
+        const displayFreeHouses_div = document.createElement("div");
+
+        let table = `
+        <table>
+            <tr>
+                <th>ID maison</th>
+                <th>Bloc</th>
+                <th>Etage</th>
+                <th>Tag maison</th>
+                <th>Type</th>
+                <th>Surface</th>
+                <th>Surface utile</th>
+            </tr>
+        `;
+        freeAptsData.forEach((house) => {
+            table += `
+            <tr>
+                <td>${house.house_hash}</td>
+                <td>${house.bloc_id}</td>
+                <td>${house.floor_nb}</td>
+                <td>${house.apt_label}</td>
+                <td>${house.apt_type}</td>
+                <td>${house.surface}</td>
+                <td>${house.surface_real}</td>
+            </tr>
+            `;
+        });
+        table += "</table>";
+        displayFreeHouses_div.innerHTML = table;
+
+        this.emptyContainer();
+        this.formsContainer.appendChild(displayFreeApts_div);
     }
 
     /**
@@ -388,12 +392,24 @@ class Fetcher {
             .then((res) => res.json())
             .then((json) => {
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
-                    console.log(json);
+                    console.table(json);
                     const blocs = this.#joinAptsToBloc(json.CONTENT);
                     sessionStorage.setItem("blocs", JSON.stringify(blocs));
                     // console.table(blocs);
                 }
                 // >>>>>>>>>>> display the notice
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
+    }
+
+    getFreeHouses() {
+        fetch("http://localhost:50080/apis/get_free_houses")
+            .then((res) => res.json())
+            .then((json) => {
+                console.table(json);
+                sessionStorage.setItem("freeApts", JSON.stringify(json));
             })
             .catch((err) => {
                 console.warn(err);
@@ -428,18 +444,6 @@ class Fetcher {
 
         return blocs;
     }
-
-    getFreeApts() {
-        fetch("http://localhost:50080/apis/get_free_apts")
-            .then((res) => res.json())
-            .then((json) => {
-                console.log(json);
-                sessionStorage.setItem("freeApts", JSON.stringify(json));
-            })
-            .catch((err) => {
-                console.warn(err);
-            });
-    }
 }
 // *****************************************************
 //                  MAIN SCOPE
@@ -449,11 +453,11 @@ const ui = new UI(
     document.querySelector("#forms-container"),
     document.querySelector("#reports-container")
 );
-const formSubmitter = new FormSubmitter();
 const fetcher = new Fetcher();
+const formSubmitter = new FormSubmitter();
 
 fetcher.getBlocs();
-fetcher.getFreeApts();
+fetcher.getFreeHouses();
 
 const asideMenu = document.querySelector("aside > div");
 asideMenu.addEventListener("click", (e) => {
@@ -486,7 +490,7 @@ function locationChanges() {
     if (hash === "#srch-apt") {
         ui.searchApt();
     } else if (hash === "#srch-apt-free") {
-        ui.displayFreeApts();
+        ui.displayFreeHouses();
     } else if (hash === "#ins-bloc") {
         ui.insBloc();
         insBloc_eventListeners();
