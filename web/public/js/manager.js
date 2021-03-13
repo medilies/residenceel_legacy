@@ -99,8 +99,7 @@ class UI {
             blocIdInput.classList.add("locked-input");
         }
 
-        const aptLabelName = "apt_label-" + this.insBloc_AptInputNameIterator;
-        const aptTypeName = "apt_type-" + this.insBloc_AptInputNameIterator;
+        const i = this.insBloc_AptInputNameIterator;
         // Default value start from 1 unlike names that start from 0
         this.insBloc_AptInputNameIterator++;
         const aptLabelDefaultValue = `${aptLabelBlocPrefix}-${this.insBloc_AptInputNameIterator}`;
@@ -109,13 +108,13 @@ class UI {
         apt.classList.add("flex-row-base");
         apt.innerHTML = `
             <div class="ml1">
-                <label for="${aptLabelName}">Apartement</label>
-                <input name="${aptLabelName}" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
+                <label for="apts[${i}][apt_label]">Apartement</label>
+                <input name="apts[${i}][apt_label]" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
             </div>
             
             <div class="ml1">
-                <label for="${aptTypeName}">Type</label>
-                <input name="${aptTypeName}" type="text" placeholder="F2,F3..." required pattern="F[2-5]" list="chambres" class="w4"/>
+                <label for="apts[${i}][apt_type]">Type</label>
+                <input name="apts[${i}][apt_type]" type="text" placeholder="F2,F3..." required pattern="F[2-5]" list="chambres" class="w4"/>
             </div>
         `;
 
@@ -142,7 +141,6 @@ class UI {
         /**
          * Targets identifiers
          */
-        // 1st
         this.insApts_form_id = "insApts";
         this.insApts_selectBloc_id = "insApts-select-bloc";
         this.insApts_addFloors_attr = "insApts_AddFloors";
@@ -158,10 +156,10 @@ class UI {
             <select name="bloc_id" required class="w5" id="${
                 this.insApts_selectBloc_id
             }">
-            ${blocsData.map(
-                (bloc) =>
-                    `<option value="${bloc.bloc_id}">${bloc.bloc_id}</option>`
-            )}
+            ${blocsData.map((bloc) => {
+                if (bloc.has_houses === "0")
+                    return `<option value="${bloc.bloc_id}">${bloc.bloc_id}</option>`;
+            })}
             </select>
 
             <button type="button" class="inline" ${
@@ -415,6 +413,7 @@ class Fetcher {
             let temp = {};
             temp.bloc_id = bloc.bloc_id;
             temp.floors_nb = bloc.floors_nb;
+            temp.has_houses = bloc.has_houses;
             temp.apts = [];
 
             jsonApts.forEach((apt) => {

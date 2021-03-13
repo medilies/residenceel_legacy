@@ -4,11 +4,15 @@ class Api extends Database
 {
     public function __construct()
     {
-        $this->set_db_users(['INSERT', 'SELECT']);
+        $this->set_db_users(['INSERT', 'SELECT', 'UPDATE']);
     }
 
-    public function insert_block(string $bloc_id, int $bloc_floors_nb, array $apts_and_types)
+    public function insert_block(array $posted_bloc)
     {
+        $bloc_id = strtoupper($posted_bloc['bloc_id']);
+        $bloc_floors_nb = intval($posted_bloc['floors_nb']);
+        $apts_and_types = $posted_bloc['apts'];
+
         // VALIDATION:
         if (!preg_match("/[a-zA-Z][0-9]?/", $bloc_id)) {
             return [
@@ -23,8 +27,9 @@ class Api extends Database
             ];
         }
         foreach ($apts_and_types as $apt) {
-            $apt_label = $apt[0];
-            $apt_type = $apt[1];
+            $apt_label = strtoupper($apt['apt_label']);
+            $apt_type = strtoupper($apt['apt_type']);
+
             if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
                 return [
                     "REPORT" => "INVALID_DATA",
@@ -39,8 +44,6 @@ class Api extends Database
             }
         }
 
-        // >>>>>>>>>>>>>>>>>>> CHECK IF USER INPUT ISN'T IN DB "UNIQUE"!!!
-
         try {
             $query1 = 'INSERT INTO blocs(bloc_id, floors_nb) VALUES(:bloc_id, :floors_nb)';
             $bloc = $this->Insertor->prepare($query1);
@@ -50,8 +53,8 @@ class Api extends Database
                 //
                 $query2 = 'INSERT INTO apts(apt_label, apt_type, bloc_id) VALUES';
                 foreach ($apts_and_types as $apt) {
-                    $apt_label = $apt[0];
-                    $apt_type = $apt[1];
+                    $apt_label = strtoupper($apt['apt_label']);
+                    $apt_type = strtoupper($apt['apt_type']);
                     $query2 .= "('$apt_label','$apt_type','$bloc_id'),";
                 }
                 $query2 = substr($query2, 0, -1);
@@ -64,6 +67,7 @@ class Api extends Database
                 }
             }
         } catch (PDOException $e) {
+            // CATCH UNIQUE CONSTRAINT VIOLATION
             return [
                 "REPORT" => "ERROR",
                 "CONTENT" => $e->getMessage(),
@@ -166,6 +170,11 @@ class Api extends Database
             $houses = $this->Insertor->prepare($query);
             if ($houses->execute()) {
                 $new_rows = $houses->rowCount();
+
+                $query1 = "UPDATE blocs SET has_houses=1 WHERE bloc_id = '$bloc_id'";
+                $bloc = $this->Updator->prepare($query1);
+                $bloc->execute();
+
                 return [
                     "REPORT" => "SUCCESSFUL_INSERTION",
                     "CONTENT" => "$new_rows maisons ont étét enregistrées dans le bloc $bloc_id avec succes!",
