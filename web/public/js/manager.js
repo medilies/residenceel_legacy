@@ -22,7 +22,6 @@ class UI {
 
         searchAptDiv.appendChild(selectBloc);
 
-        this.emptyContainer();
         this.formsContainer.appendChild(searchAptDiv);
     }
 
@@ -77,8 +76,9 @@ class UI {
             </form>
         `;
 
-        this.emptyContainer();
         this.formsContainer.appendChild(insBloc_div);
+
+        return Promise.resolve("add eventListeners");
     }
 
     insBloc_addApt() {
@@ -136,10 +136,7 @@ class UI {
         }
     }
 
-    insApts() {
-        // Mondatory >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        // check if it is set before showing the form
-        const blocsData = JSON.parse(sessionStorage.getItem("blocs"));
+    insApts(blocsData) {
         // console.table(blocsData);
 
         /**
@@ -185,14 +182,13 @@ class UI {
         </form>
         `;
 
-        this.emptyContainer();
         this.formsContainer.appendChild(insApt_div);
+
+        return Promise.resolve("add eventListeners");
     }
 
-    insApts_addFloor() {
-        // Mondatory >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        // check if it is set before showing the form
-        const blocsData = JSON.parse(sessionStorage.getItem("blocs"));
+    insApts_addFloor(blocsData) {
+        if (this.insApts_FloorsInputNameIterator >= 5) return;
 
         const floorsContainer = document.querySelector(
             "#" + this.insApts_floorsContainerDiv_id
@@ -269,10 +265,7 @@ class UI {
         return aptsDivs;
     }
 
-    displayFreeHouses() {
-        const freeAptsData = JSON.parse(sessionStorage.getItem("freeApts"));
-        // console.table(freeAptsData);
-
+    displayFreeHouses(freeAptsData) {
         const displayFreeHouses_div = document.createElement("div");
 
         let table = `
@@ -303,8 +296,7 @@ class UI {
         table += "</table>";
         displayFreeHouses_div.innerHTML = table;
 
-        this.emptyContainer();
-        this.formsContainer.appendChild(displayFreeApts_div);
+        this.formsContainer.appendChild(displayFreeHouses_div);
     }
 
     /**
@@ -324,6 +316,8 @@ class UI {
             report.classList.add("report", "err-report");
         } else if (reportObj.REPORT === "MISSING_DATA") {
             report.classList.add("report", "missing-input-report");
+        } else if (reportObj.REPORT === "NOTICE") {
+            report.classList.add("report", "notice");
         }
 
         this.reportsContainer.prepend(report);
@@ -367,6 +361,13 @@ class FormSubmitter {
             });
     }
 
+    /**
+     * Display servers' answer and:
+     * - Refresh the page if the submission was successful
+     * - Redisplay the submit button to ressubmit the corrected form
+     * @param {object} json server response {REPORT, CONTENT}
+     * @param {string} submitBtnId
+     */
     #formSubmitIncomeAction(json, submitBtnId) {
         ui.appendReportDiv(json);
 
@@ -388,32 +389,15 @@ class Fetcher {
     }
 
     getBlocs() {
-        fetch("http://localhost:50080/apis/get_blocs")
-            .then((res) => res.json())
-            .then((json) => {
-                if (json.REPORT === "SUCCESSFUL_FETCH") {
-                    console.table(json);
-                    const blocs = this.#joinAptsToBloc(json.CONTENT);
-                    sessionStorage.setItem("blocs", JSON.stringify(blocs));
-                    // console.table(blocs);
-                }
-                // >>>>>>>>>>> display the notice
-            })
-            .catch((err) => {
-                console.warn(err);
-            });
+        return fetch("http://localhost:50080/apis/get_blocs").then((res) =>
+            res.json()
+        );
     }
 
     getFreeHouses() {
-        fetch("http://localhost:50080/apis/get_free_houses")
-            .then((res) => res.json())
-            .then((json) => {
-                console.table(json);
-                sessionStorage.setItem("freeApts", JSON.stringify(json));
-            })
-            .catch((err) => {
-                console.warn(err);
-            });
+        return fetch(
+            "http://localhost:50080/apis/get_free_houses"
+        ).then((res) => res.json());
     }
 
     /**
@@ -421,7 +405,7 @@ class Fetcher {
      * @param {object} json
      * @returns
      */
-    #joinAptsToBloc(json) {
+    joinAptsToBloc(json) {
         const jsonBlocs = json[0];
         const jsonApts = json[1];
 
@@ -456,8 +440,7 @@ const ui = new UI(
 const fetcher = new Fetcher();
 const formSubmitter = new FormSubmitter();
 
-fetcher.getBlocs();
-fetcher.getFreeHouses();
+let tempBlocsData = null;
 
 const asideMenu = document.querySelector("aside > div");
 asideMenu.addEventListener("click", (e) => {
@@ -486,19 +469,67 @@ window.onload = () => {
     locationChanges();
 };
 function locationChanges() {
+    ui.emptyContainer();
+
     const hash = window.location.hash;
     if (hash === "#srch-apt") {
         ui.searchApt();
     } else if (hash === "#srch-apt-free") {
-        ui.displayFreeHouses();
+        fetcher
+            .getFreeHouses()
+            .then((json) => {
+                console.log(json);
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    ui.displayFreeHouses(json.CONTENT);
+                } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                }
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
     } else if (hash === "#ins-bloc") {
-        ui.insBloc();
-        insBloc_eventListeners();
+        ui.insBloc().then(insBloc_eventListeners);
     } else if (hash === "#ins-apt") {
-        // check if blocsData is set in session storage >>>>>>>>>>>>
-        ui.insApts();
-        insApts_eventListeners();
+        fetcher
+            .getBlocs()
+            .then((json) => {
+                console.log(json);
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    const blocs = fetcher.joinAptsToBloc(json.CONTENT);
+                    tempBlocsData = blocs;
+                    ui.insApts(blocs).then(insApts_eventListeners);
+                } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                }
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
     }
+}
+
+function insBloc_eventListeners() {
+    const insBlocForm = document.querySelector("#" + ui.insBloc_form_id);
+
+    insBlocForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        document.querySelector("#" + ui.insBloc_submitBtn_id).style.display =
+            "none";
+
+        formSubmitter.insBloc_submit(new FormData(insBlocForm));
+    });
+
+    insBlocForm.addEventListener("click", (e) => {
+        const target = e.target;
+
+        if (target.hasAttribute(ui.insBloc_addApt_attr)) {
+            ui.insBloc_addApt();
+        } else if (target.hasAttribute(ui.insBloc_rmApt_attr)) {
+            ui.insBloc_rmApt();
+        }
+    });
 }
 
 function insApts_eventListeners() {
@@ -524,32 +555,9 @@ function insApts_eventListeners() {
         const target = e.target;
 
         if (target.hasAttribute(ui.insApts_addFloors_attr)) {
-            ui.insApts_addFloor();
+            ui.insApts_addFloor(tempBlocsData);
         } else if (target.hasAttribute(ui.insApts_rmFloor_attr)) {
             ui.insApts_rmFloor();
-        }
-    });
-}
-
-function insBloc_eventListeners() {
-    const insBlocForm = document.querySelector("#" + ui.insBloc_form_id);
-
-    insBlocForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        document.querySelector("#" + ui.insBloc_submitBtn_id).style.display =
-            "none";
-
-        formSubmitter.insBloc_submit(new FormData(insBlocForm));
-    });
-
-    insBlocForm.addEventListener("click", (e) => {
-        const target = e.target;
-
-        if (target.hasAttribute(ui.insBloc_addApt_attr)) {
-            ui.insBloc_addApt();
-        } else if (target.hasAttribute(ui.insBloc_rmApt_attr)) {
-            ui.insBloc_rmApt();
         }
     });
 }

@@ -240,9 +240,15 @@ class Api extends Database
 
         if ($apts->rowCount() > 0) {
             $apts = $apts->fetchAll();
-            return $apts;
+            return [
+                "REPORT" => "SUCCESSFUL_FETCH",
+                "CONTENT" => $apts,
+            ];
         } else {
-            return false;
+            return [
+                "REPORT" => "NOTICE",
+                "CONTENT" => "0 maisons libres",
+            ];
         }
     }
 

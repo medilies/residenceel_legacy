@@ -267,6 +267,10 @@ h5,
     background: rgb(255, 126, 126);
     border-color: rgb(255, 0, 0);
 }
+.notice {
+    background: rgb(126, 180, 255);
+    border-color: rgb(0, 106, 255);
+}
 
 .locked-input {
     border: var(--primary-color) solid 2px;
