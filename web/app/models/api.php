@@ -15,32 +15,20 @@ class Api extends Database
 
         // VALIDATION:
         if (!preg_match("/[a-zA-Z][0-9]?/", $bloc_id)) {
-            return [
-                "REPORT" => "INVALID_DATA",
-                "CONTENT" => "Tag du bloc $bloc_id est invalid! FORME VALIDE: [A-Z][0-9]",
-            ];
+            return Utility::create_report('INVALID_DATA', "Tag du bloc $bloc_id est invalid! FORME VALIDE: [A-Z][0-9]");
         }
         if ($bloc_floors_nb < 5 || $bloc_floors_nb > 20) {
-            return [
-                "REPORT" => "INVALID_DATA",
-                "CONTENT" => "Nombre d'étages $bloc_floors_nb n'est pas dans l'interval [5-20]",
-            ];
+            return Utility::create_report('INVALID_DATA', "Nombre d'étages $bloc_floors_nb n'est pas dans l'interval [5-20]");
         }
         foreach ($apts_and_types as $apt) {
             $apt_label = strtoupper($apt['apt_label']);
             $apt_type = strtoupper($apt['apt_type']);
 
             if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
-                return [
-                    "REPORT" => "INVALID_DATA",
-                    "CONTENT" => "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8] ",
-                ];
+                return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8]");
             }
             if (!$this->is_valid_apt_type($apt_type)) {
-                return [
-                    "REPORT" => "INVALID_DATA",
-                    "CONTENT" => "Type d'apartement $apt_type est invalid! FORME VALIDE: F[1-5] ",
-                ];
+                return Utility::create_report('INVALID_DATA', "Type d'apartement $apt_type est invalid! FORME VALIDE: F[1-5]");
             }
         }
 
@@ -60,10 +48,7 @@ class Api extends Database
                 $query2 = substr($query2, 0, -1);
                 $apts_and_types = $this->Insertor->prepare($query2);
                 if ($apts_and_types->execute()) {
-                    return [
-                        "REPORT" => "SUCCESSFUL_INSERTION",
-                        "CONTENT" => "Le bloc $bloc_id est enregistré avec succes!",
-                    ];
+                    return Utility::create_report('SUCCESSFUL_INSERTION', "Le bloc $bloc_id est enregistré avec succes!");
                 }
             }
         } catch (PDOException $e) {
@@ -106,7 +91,7 @@ class Api extends Database
 
         $floors_checker = range(1, $bloc_floor_nb);
 
-        $query = 'INSERT INTO houses(floor_nb, apt_label, surface, surface_real) VALUES';
+        $query = 'INSERT INTO houses(floor_nb, apt_label, surface, surface_real, house_hash) VALUES';
 
         // VALIDATION + missing data check in some way ?
         foreach ($apts_data['floors'] as $floors) {
@@ -114,10 +99,7 @@ class Api extends Database
             $floors_str = $floors['floors'];
 
             if (!preg_match("/^(1?[0-9];)*1?[0-9];?$/", $floors_str)) {
-                return [
-                    "REPORT" => "INVALID_DATA",
-                    "CONTENT" => "La serie d'étages $floors_str est invalid! FORME VALIDE: NUMÉROS SEPARÉS AVEC DES POINT VIRGULE ';' ",
-                ];
+                return Utility::create_report('INVALID_DATA', "La serie d'étages $floors_str est invalid! FORME VALIDE: NUMÉROS SEPARÉS AVEC DES POINT VIRGULE ';'");
             }
 
             $floors_arr = explode(";", trim($floors_str, ";"));
@@ -127,10 +109,7 @@ class Api extends Database
                 $current_floor_ckeck = array_search($floor_nb, $floors_checker);
 
                 if ($current_floor_ckeck === false) {
-                    return [
-                        "REPORT" => "INVALID_DATA",
-                        "CONTENT" => "L'étage $floor_nb n'a pas de place dans les $bloc_floor_nb étages du bloc $bloc_id",
-                    ];
+                    return Utility::create_report('INVALID_DATA', "L'étage $floor_nb n'a pas de place dans les $bloc_floor_nb étages du bloc $bloc_id");
                 }
                 unset($floors_checker[$current_floor_ckeck]);
 
@@ -141,29 +120,20 @@ class Api extends Database
                     $surface_real = floatval($house['surface_real']);
 
                     if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
-                        return [
-                            "REPORT" => "INVALID_DATA",
-                            "CONTENT" => "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8] ",
-                        ];
+                        return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8]");
                     }
                     if (!$this->is_valid_surface($surface, $surface_real)) {
-                        return [
-                            "REPORT" => "INVALID_DATA",
-                            "CONTENT" => "Suraface $surface et $surface_real de $apt_label doivent etre dans linterval [50.00-200.00]!",
-                        ];
+                        return Utility::create_report('INVALID_DATA', "Suraface $surface et $surface_real de $apt_label doivent etre dans linterval [50.00-200.00]!");
                     }
 
-                    $query .= "($floor_nb, '$apt_label', $surface, $surface_real),";
+                    $query .= "($floor_nb, '$apt_label', $surface, $surface_real,'" . md5($floor_nb . $apt_label . "salt") . "'),";
                 }
             }
         }
         $query = substr($query, 0, -1);
 
         if (!empty($floors_checker)) {
-            return [
-                "REPORT" => "MISSING_DATA",
-                "CONTENT" => "Il manque l'étage " . implode(" ", $floors_checker) . " du bloc $bloc_id",
-            ];
+            return Utility::create_report('MISSING_DATA', "Il manque l'étage " . implode(" ", $floors_checker) . " du bloc $bloc_id");
         }
 
         try {
@@ -175,16 +145,10 @@ class Api extends Database
                 $bloc = $this->Updator->prepare($query1);
                 $bloc->execute();
 
-                return [
-                    "REPORT" => "SUCCESSFUL_INSERTION",
-                    "CONTENT" => "$new_rows maisons ont étét enregistrées dans le bloc $bloc_id avec succes!",
-                ];
+                return Utility::create_report('SUCCESSFUL_INSERTION', "$new_rows maisons ont étét enregistrées dans le bloc $bloc_id avec succes!");
             }
         } catch (PDOException $e) {
-            return [
-                "REPORT" => "ERROR",
-                "CONTENT" => $e->getMessage(),
-            ];
+            return Utility::create_report('ERROR', $e->getMessage());
         }
 
     }
@@ -208,29 +172,15 @@ class Api extends Database
 
                 if ($apts->rowCount() > 0) {
                     $apts = $apts->fetchAll();
-
-                    return [
-                        "REPORT" => "SUCCESSFUL_FETCH",
-                        "CONTENT" => [$blocs, $apts],
-                    ];
+                    return Utility::create_report('SUCCESSFUL_FETCH', [$blocs, $apts]);
                 } else {
-                    return [
-                        "REPORT" => "ERROR",
-                        "CONTENT" => "Des blocs sont inscrit sans les specifications de leurs apartements!",
-                    ];
+                    return Utility::create_report('ERROR', "Des blocs sont inscrit sans les specifications de leurs apartements!");
                 }
             } else {
-                return [
-                    "REPORT" => "NOTICE",
-                    "CONTENT" => "Aucun bloc n'est inscrit",
-                ];
-
+                return Utility::create_report('NOTICE', "Aucun bloc n'est inscrit");
             }
         } catch (PDOException $e) {
-            return [
-                "REPORT" => "ERROR",
-                "CONTENT" => $e->getMessage(),
-            ];
+            return Utility::create_report('ERROR', $e->getMessage());
         }
     }
 
@@ -249,17 +199,15 @@ class Api extends Database
 
         if ($apts->rowCount() > 0) {
             $apts = $apts->fetchAll();
-            return [
-                "REPORT" => "SUCCESSFUL_FETCH",
-                "CONTENT" => $apts,
-            ];
+            return Utility::create_report('SUCCESSFUL_FETCH', $apts);
         } else {
-            return [
-                "REPORT" => "NOTICE",
-                "CONTENT" => "0 maisons libres",
-            ];
+            return Utility::create_report('NOTICE', "0 maisons libres");
         }
     }
+
+    //**************************************** */
+    //              VALIDATION
+    //**************************************** */
 
     private function is_valid_apt_type(string $apt_type): bool
     {

@@ -198,7 +198,7 @@ class UI {
         const floors = document.createElement("div");
         floors.classList.add("card", "mb1");
         floors.innerHTML = `
-        <label for="floors">Etages</label>
+        <label for="floors">Serie d'étages</label>
         <input name="floors[${i}][floors]" placeholder="3;5;6;9;..." pattern="([0-9]+;)*[0-9]+(;)?" required class="inline"/>
         
         ${this.insApts_floorApts(blocsData)}

@@ -17,10 +17,7 @@ class Apis extends Controller
     public function insert_block()
     {
         if ($_SERVER['REQUEST_METHOD'] !== "POST") {
-            echo json_encode([
-                "REPORT" => "ERROR",
-                "CONTENT" => "wrong access method",
-            ]);
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
             return;
         }
 
@@ -30,17 +27,14 @@ class Apis extends Controller
         if (!isset($_POST['floors_nb']) || empty(trim($_POST['floors_nb']))) {
             $msg = "Le nombre des étages est mondataire!";
         }
-        // ASSUMES that there is a min of 3 apts/floor
-        if (!isset($_POST['apts']) || !is_array($_POST['apts']) || sizeof($_POST['apts']) < 3) {
-            $msg = "Le nombre des étages est mondataire";
+        // ASSUMES that [3-8] apts/floor
+        if (!isset($_POST['apts']) || !is_array($_POST['apts']) ||
+            (sizeof($_POST['apts']) < 3 && sizeof($_POST['apts']) > 8)) {
+            $msg = "Un minimum de 3 apartements par étage est mondataire";
         }
 
         if (isset($msg)) {
-            $missing_data_report = [
-                "REPORT" => "MISSING_DATA",
-                "CONTENT" => $msg,
-            ];
-            echo json_encode($missing_data_report);
+            echo json_encode(Utility::create_report('MISSING_DATA', $msg));
             return;
         }
 
