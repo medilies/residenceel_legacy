@@ -16,15 +16,6 @@ class UI {
         this.formsContainer.innerHTML = "";
     }
 
-    searchApt() {
-        const searchAptDiv = document.createElement("div");
-        const selectBloc = document.createElement("select");
-
-        searchAptDiv.appendChild(selectBloc);
-
-        this.formsContainer.appendChild(searchAptDiv);
-    }
-
     /**
      * - Creates a form this targetable with an ID
      * - The form has 3 buttons
@@ -263,6 +254,65 @@ class UI {
         return aptsDivs;
     }
 
+    searchApt() {
+        const searchApt_div = document.createElement("div");
+
+        this.searchApt_form_id = "searchApt";
+        this.searchApt_submitBtn_id = "searchApt-submit-btn";
+        this.searchApt_resultDiv_id = "searchApt-result";
+
+        searchApt_div.innerHTML = `
+            <form id="${this.searchApt_form_id}">
+
+                <label for="apt_label">Apartement</label>
+                <input name="apt_label" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
+
+                <label for="floor_nb">Etage</label>
+                <input name="floor_nb" type="number" required min="1" max="20" class="w4"/>
+
+                <button type="submit" id="${this.searchApt_submitBtn_id}">Valider</button>
+
+            </form>
+
+            <div id='${this.searchApt_resultDiv_id}'></div>
+        `;
+
+        this.formsContainer.appendChild(searchApt_div);
+
+        return Promise.resolve("add eventListeners");
+    }
+
+    searchApt_displayResult(aptData) {
+        const searchApt_result_div = document.querySelector(
+            "#" + this.searchApt_resultDiv_id
+        );
+
+        const table = `
+        <table>
+            <tr>
+                <th>ID maison</th>
+                <th>Bloc</th>
+                <th>Etage</th>
+                <th>Tag maison</th>
+                <th>Type</th>
+                <th>Surface</th>
+                <th>Surface utile</th>
+            </tr>
+            <tr>
+                <td>${aptData.house_hash}</td>
+                <td>${aptData.bloc_id}</td>
+                <td>${aptData.floor_nb}</td>
+                <td>${aptData.apt_label}</td>
+                <td>${aptData.apt_type}</td>
+                <td>${aptData.surface}</td>
+                <td>${aptData.surface_real}</td>
+            </tr>
+        </table>
+        `;
+
+        searchApt_result_div.innerHTML = table;
+    }
+
     displayFreeHouses(freeAptsData) {
         const displayFreeHouses_div = document.createElement("div");
 
@@ -398,6 +448,13 @@ class Fetcher {
         ).then((res) => res.json());
     }
 
+    getApt(formData) {
+        return fetch("http://localhost:50080/apis/search_apt", {
+            method: "post",
+            body: formData,
+        }).then((res) => res.json());
+    }
+
     /**
      * JOIN bloc_id
      * @param {object} json
@@ -472,7 +529,7 @@ function locationChanges() {
 
     const hash = window.location.hash;
     if (hash === "#srch-apt") {
-        ui.searchApt();
+        ui.searchApt().then(searchApt_EventListeners);
     } else if (hash === "#srch-apt-free") {
         fetcher
             .getFreeHouses()
@@ -503,7 +560,7 @@ function locationChanges() {
                 }
             })
             .catch((err) => {
-                console.warn(err);
+                console.error(err);
             });
     }
 }
@@ -558,5 +615,38 @@ function insApts_eventListeners() {
         } else if (target.hasAttribute(ui.insApts_rmFloor_attr)) {
             ui.insApts_rmFloor();
         }
+    });
+}
+
+function searchApt_EventListeners() {
+    const searchApt_form = document.querySelector("#" + ui.searchApt_form_id);
+
+    searchApt_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        document.querySelector("#" + ui.searchApt_submitBtn_id).style.display =
+            "none";
+
+        fetcher
+            .getApt(new FormData(searchApt_form))
+            .then((json) => {
+                document.querySelector(
+                    "#" + ui.searchApt_resultDiv_id
+                ).innerHTML = "";
+                document.querySelector(
+                    "#" + ui.searchApt_submitBtn_id
+                ).style.display = "block";
+
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    ui.searchApt_displayResult(json.CONTENT);
+                } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                } else {
+                    console.warn("Unexpected response");
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
     });
 }

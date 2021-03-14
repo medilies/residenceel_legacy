@@ -155,10 +155,10 @@ class Api extends Database
 
     public function get_blocs()
     {
+
+        $query1 = "SELECT * FROM blocs";
+
         try {
-
-            $query1 = "SELECT * FROM blocs";
-
             $blocs = $this->Selector->prepare($query1);
             $blocs->execute();
 
@@ -194,15 +194,56 @@ class Api extends Database
                 NOT IN (SELECT deals.house_id FROM deals)
             ORDER BY apts.bloc_id, houses.floor_nb";
 
-        $apts = $this->Selector->prepare($query);
-        $apts->execute();
+        try {
+            $apts = $this->Selector->prepare($query);
+            $apts->execute();
 
-        if ($apts->rowCount() > 0) {
-            $apts = $apts->fetchAll();
-            return Utility::create_report('SUCCESSFUL_FETCH', $apts);
-        } else {
-            return Utility::create_report('NOTICE', "0 maisons libres");
+            if ($apts->rowCount() > 0) {
+                $apts = $apts->fetchAll();
+                return Utility::create_report('SUCCESSFUL_FETCH', $apts);
+            } else {
+                return Utility::create_report('NOTICE', "0 maisons libres");
+            }
+        } catch (PDOException $e) {
+            return Utility::create_report('ERROR', $e->getMessage());
         }
+
+    }
+
+    public function search_apt($apt_filter)
+    {
+        $apt_label = strtoupper($_POST['apt_label']);
+        $floor_nb = intval($_POST['floor_nb']);
+
+        if (!preg_match('/^[A-Z][0-9]?-[1-8]$/', $apt_label)) {
+            return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $[A-Z][0-9]-[1-8]");
+        }
+
+        $query2 = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_hash, houses.surface, houses.surface_real
+            FROM houses
+            JOIN apts
+            ON houses.apt_label = apts.apt_label
+            WHERE houses.apt_label =:apt_label AND houses.floor_nb = :floor_nb";
+
+        try {
+            $apt = $this->Selector->prepare($query2);
+            $apt->bindParam(':apt_label', $apt_label, PDO::PARAM_STR);
+            $apt->bindParam(':floor_nb', $floor_nb, PDO::PARAM_INT);
+            $apt->execute();
+
+            if ($apt->rowCount() === 1) {
+                $apt = $apt->fetch();
+                return Utility::create_report('SUCCESSFUL_FETCH', $apt);
+            } else if ($apt->rowCount() === 0) {
+                return Utility::create_report('NOTICE', "Aucune maison $apt_label dans l'étage $floor_nb n'est enregistrée");
+            } else {
+                return Utility::create_report('INTERNAL_ERROR', "Unexpected behaviour");
+
+            }
+        } catch (PDOException $e) {
+            return Utility::create_report('ERROR', $e->getMessage());
+        }
+
     }
 
     //**************************************** */

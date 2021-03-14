@@ -56,6 +56,29 @@ class Apis extends Controller
         echo json_encode($blocs);
     }
 
+    public function search_apt()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
+        if (!isset($_POST['apt_label']) || empty(trim($_POST['apt_label']))) {
+            $msg = "Le tag d'apartement est mondataire!";
+        }
+        if (!isset($_POST['floor_nb']) || empty(trim($_POST['floor_nb']))) {
+            $msg = "Le numéro d'étages est mondataire!";
+        }
+        if (isset($msg)) {
+            echo json_encode(Utility::create_report('MISSING_DATA', $msg));
+            return;
+        }
+
+        $apt = $this->ApiModel->search_apt($_POST);
+        echo json_encode($apt);
+
+    }
+
     public function get_free_houses()
     {
         $free_houses = $this->ApiModel->get_free_houses();

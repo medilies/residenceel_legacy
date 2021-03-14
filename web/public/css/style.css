@@ -250,6 +250,7 @@ h5,
     border-radius: 0.5rem;
     border: 2px #000 solid;
     margin-bottom: 0.25rem;
+    margin-top: 0.25rem;
 }
 .success-report {
     background: rgb(126, 255, 126);
