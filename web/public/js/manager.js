@@ -45,16 +45,17 @@ class UI {
             <form id="${this.insBloc_form_id}">
 
                 <label for="bloc_id">Nom du bloc</label>
-                <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]?" class="w5"/>
+                <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]?" class="w5 first-input"/>
                 
                 <label for="floors_nb">Nombre des étages</label>
                 <input name="floors_nb" type="number" min="5" max="20" placeholder="5..." required class="w3"/>
                 
-                <button name="insBloc" type="button" ${this.insBloc_addApt_attr} class="inline">Ajouter un apartement</button>
+                <button name="insBloc" type="button" ${this.insBloc_addApt_attr} class="btn add-btn inline wp1"><i class="fas fa-plus-square"></i> Apartement</button>
 
-                <button type="button" ${this.insBloc_rmApt_attr} class="w18 inline">Retirer le dernier apartement</button>
+                <button type="button" ${this.insBloc_rmApt_attr} class="btn rm-btn wp1 inline"><i class="fas fa-minus-square"></i> Apartement</button>
 
-                <div id="${this.insBloc_aptContainerDiv_id}"></div>
+                <div id="${this.insBloc_aptContainerDiv_id}" class="bg-l-grey p05 mb1 br1"></div>
+
                 <datalist id="chambres">
                   <option value="F2">
                   <option value="F3">
@@ -62,7 +63,7 @@ class UI {
                   <option value="F5">
                 </datalist>
                 
-                <button name="insBloc" type="submit" id="${this.insBloc_submitBtn_id}">Valider</button>
+                <button name="insBloc" type="submit" id="${this.insBloc_submitBtn_id}" class="btn add-btn wp1"><i class="fas fa-check-square"></i> Enregistrer</button>
                 
             </form>
         `;
@@ -96,7 +97,7 @@ class UI {
         const aptLabelDefaultValue = `${aptLabelBlocPrefix}-${this.insBloc_AptInputNameIterator}`;
 
         const apt = document.createElement("div");
-        apt.classList.add("flex-row-base");
+        apt.classList.add("flex-row-base", "bg-w", "br1", "mt05", "mb05");
         apt.innerHTML = `
             <div class="ml1">
                 <label for="apts[${i}][apt_label]">Apartement</label>
@@ -144,7 +145,7 @@ class UI {
         insApt_div.innerHTML = `
         <form id="${this.insApts_form_id}">
             <label for"bloc_id">Bloc</label>
-            <select name="bloc_id" required class="w5" id="${
+            <select name="bloc_id" required class="w5 first-input" id="${
                 this.insApts_selectBloc_id
             }">
             ${blocsData.map((bloc) => {
@@ -153,21 +154,21 @@ class UI {
             })}
             </select>
 
-            <button type="button" class="inline" ${
+            <button type="button" class="inline wp1 btn add-btn" ${
                 this.insApts_addFloors_attr
-            }>Inserer une serie d'étages</button>
+            }><i class="fas fa-plus-square"></i> Série d'étages</button>
 
-            <button type="button" class="inline w21" ${
+            <button type="button" class="inline wp1 btn rm-btn" ${
                 this.insApts_rmFloor_attr
-            }>Supprimer la derniere serie d'étages</button>
+            }><i class="fas fa-minus-square"></i> Série d'étages</button>
 
             <div id="${
                 this.insApts_floorsContainerDiv_id
-            }" class="bg-l-grey p05"></div>
+            }" class="bg-l-grey br1 p05 mb1"></div>
             
             <button id="${
                 this.insApts_submitBtn_id
-            }" type="submit" class="inline" ">Valider</button>
+            }" type="submit" class="inline wp1 btn add-btn"><i class="fas fa-check-square"></i> Enregistrer</button>
         </form>
         `;
 
@@ -187,7 +188,7 @@ class UI {
         const i = this.insApts_FloorsInputNameIterator;
 
         const floors = document.createElement("div");
-        floors.classList.add("card", "mb1");
+        floors.classList.add("card", "mt1", "mb1");
         floors.innerHTML = `
         <label for="floors">Serie d'étages</label>
         <input name="floors[${i}][floors]" placeholder="3;5;6;9;..." pattern="([0-9]+;)*[0-9]+(;)?" required class="inline"/>
@@ -270,7 +271,7 @@ class UI {
                 <label for="floor_nb">Etage</label>
                 <input name="floor_nb" type="number" required min="1" max="20" class="w4"/>
 
-                <button type="submit" id="${this.searchApt_submitBtn_id}">Valider</button>
+                <button type="submit" id="${this.searchApt_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Chercher</button>
 
             </form>
 
@@ -355,20 +356,55 @@ class UI {
      */
     appendReportDiv(reportObj) {
         const report = document.createElement("div");
-        report.innerHTML = new Date() + "<br>" + reportObj.CONTENT;
+        let icon;
         if (reportObj.REPORT === "SUCCESSFUL_INSERTION") {
             report.classList.add("report", "success-report");
-        } else if (reportObj.REPORT === "INVALID_DATA") {
+            icon = "<i class='fas fa-check-double'></i> ";
+        }
+        //
+        else if (reportObj.REPORT === "INVALID_DATA") {
             report.classList.add("report", "invalid-input-report");
-        } else if (reportObj.REPORT === "ERROR") {
-            report.classList.add("report", "err-report");
-        } else if (reportObj.REPORT === "MISSING_DATA") {
+            icon = "<i class='fas fa-times-circle'></i> ";
+        }
+        //
+        else if (reportObj.REPORT === "MISSING_DATA") {
             report.classList.add("report", "missing-input-report");
-        } else if (reportObj.REPORT === "NOTICE") {
+            icon = "<i class='fas fa-times-circle'></i> ";
+        }
+        //
+        else if (
+            reportObj.REPORT === "ERROR" ||
+            reportObj.REPORT === "INTERNAL_ERROR"
+        ) {
+            report.classList.add("report", "err-report");
+            icon = "<i class='fas fa-exclamation-triangle'></i> ";
+        }
+        //
+        else if (reportObj.REPORT === "NOTICE") {
             report.classList.add("report", "notice");
+            icon = "<i class='fas fa-exclamation'></i> ";
         }
 
+        report.innerHTML = new Date() + "<br>" + icon + reportObj.CONTENT;
         this.reportsContainer.prepend(report);
+    }
+
+    highlightasideMenuLocation(currentHash) {
+        const asideMenu = document.querySelector("aside");
+        const menuTarget = document.querySelector(`[href='${currentHash}']`);
+
+        const children = Array.from(asideMenu.children);
+        children.forEach((child) => {
+            child.classList.remove("aside-focused-section");
+
+            const grandChildren = Array.from(child.children);
+            grandChildren.forEach((grandChild) => {
+                grandChild.classList.remove("aside-focused-href");
+            });
+        });
+
+        menuTarget.classList.add("aside-focused-href");
+        menuTarget.parentElement.classList.add("aside-focused-section");
     }
 }
 
@@ -422,7 +458,7 @@ class FormSubmitter {
         if (json.REPORT === "SUCCESSFUL_INSERTION")
             setTimeout(() => {
                 window.location = window.location.origin;
-            }, 2000);
+            }, 3000);
         else {
             document.querySelector("#" + submitBtnId).style.display = "block";
         }
@@ -498,26 +534,6 @@ const formSubmitter = new FormSubmitter();
 
 let tempBlocsData = null;
 
-const asideMenu = document.querySelector("aside > div");
-asideMenu.addEventListener("click", (e) => {
-    const target = e.target;
-
-    if (target.hasAttribute("aside-href")) {
-        const children = Array.from(asideMenu.children);
-        children.forEach((child) => {
-            child.classList.remove("aside-focused-section");
-
-            const grandChildren = Array.from(child.children);
-            grandChildren.forEach((grandChild) => {
-                grandChild.classList.remove("aside-focused-href");
-            });
-        });
-
-        target.classList.add("aside-focused-href");
-        target.parentElement.classList.add("aside-focused-section");
-    }
-});
-
 window.onhashchange = () => {
     locationChanges();
 };
@@ -528,9 +544,12 @@ function locationChanges() {
     ui.emptyContainer();
 
     const hash = window.location.hash;
+
+    ui.highlightasideMenuLocation(hash);
+
     if (hash === "#srch-apt") {
         ui.searchApt().then(searchApt_EventListeners);
-    } else if (hash === "#srch-apt-free") {
+    } else if (hash === "#list-apt-free") {
         fetcher
             .getFreeHouses()
             .then((json) => {

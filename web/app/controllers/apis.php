@@ -29,7 +29,7 @@ class Apis extends Controller
         }
         // ASSUMES that [3-8] apts/floor
         if (!isset($_POST['apts']) || !is_array($_POST['apts']) ||
-            (sizeof($_POST['apts']) < 3 && sizeof($_POST['apts']) > 8)) {
+            (sizeof($_POST['apts']) < 3 || sizeof($_POST['apts']) > 8)) {
             $msg = "Un minimum de 3 apartements par étage est mondataire";
         }
 

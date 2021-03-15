@@ -11,7 +11,10 @@
     --complementary-color12: #b04d1a;
     --complementary-color21: #fcce00;
     --complementary-color22: #b09109;
+    --red: #f00;
+    --green: #0f0;
     --max-width: 1400px;
+    --aside-width: 320px;
     --header1-size: 64px;
     --header2-size: 48px;
     --header3-size: 32px;
@@ -44,15 +47,13 @@ a {
 
 input,
 button,
-label,
-.btn {
+label {
     display: block;
 }
 
 button,
 input,
-select,
-.btn {
+select{
     box-sizing: content-box;
     font-size: var(--header5-size);
     line-height: var(--header5-line-h);
@@ -69,8 +70,7 @@ label {
     margin-bottom: 0.25rem;
 }
 
-button,
-.btn {
+button {
     border: none;
     background: var(--primary-color);
     color: #000;
@@ -80,6 +80,11 @@ button,
 button:hover {
     background: var(--primary-color4);
     color: #fff;
+}
+
+input,
+select{
+    border: #1167b1 solid 2px;
 }
 
 input:focus,
@@ -97,41 +102,41 @@ th {
     padding: 0.5rem;
 }
 
+th{
+    background: #1167b1;
+    color: #fff;
+}
+
 /**************************************************************************/
 /*                        LAYOUT ELEMENTS  */
 /**************************************************************************/
-header {
-    background-color: var(--primary-color);
-    height: 2rem;
-}
-
-.body-container {
+body{
     display: flex;
 }
 
-aside {
-    --aside-width: 320px;
+#aside {
     background-color: var(--primary-color1);
-    padding-left: calc(100vw / 2 - var(--max-width) / 2 - var(--aside-width));
+}
+
+aside {
     width: var(--aside-width);
-    box-sizing: content-box;
+    height: 100vh;
 }
 
-.aside-body {
-    height: 100%;
-    border-left: 1px #fff5 solid;
-}
-
-main {
-    min-height: calc(100vh - 4rem);
+#main{
     flex: 1;
+    height: 100vh;
     overflow: auto;
 }
 
+main {
+    min-height: calc(100vh - 2rem);
+}
+
 footer {
+    height: 2rem;
     background-color: #333;
     color: #fff;
-    height: 2rem;
 }
 
 .max-width-container {
@@ -198,6 +203,13 @@ h5,
 .bg-l-grey {
     background: #ccc;
 }
+.bg-w{
+    background: #fff;
+}
+
+.br1{
+    border-radius: 1rem;
+}
 
 .w3 {
     width: 3rem;
@@ -214,12 +226,27 @@ h5,
 .w21 {
     width: 21rem;
 }
+.wp1{
+    width: fit-content;
+    width: max-content;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
 
+.p05 {
+    padding: 0.5rem;
+}
+.pr05{
+    padding-right: 0.5rem;
+}
+.pl05 {
+    padding-left: 0.5rem;
+}
 .p1 {
     padding: 1rem;
 }
-.p05 {
-    padding: 0.5rem;
+.pr1{
+    padding-right: 1rem;
 }
 .pl1 {
     padding-left: 1rem;
@@ -228,11 +255,27 @@ h5,
     padding-top: 1rem;
 }
 
-.ml1 {
-    margin-left: 1rem;
+.mt05{
+    margin-top: 0.5rem;
+}
+.mb05{
+    margin-bottom: 0.5rem;
+}
+.mt1{
+    margin-top: 1rem;
 }
 .mb1 {
     margin-bottom: 1rem;
+}
+.ml1 {
+    margin-left: 1rem;
+}
+
+.red{
+    color: var(--red);
+}
+.green{
+    color: var(--green);
 }
 
 .aside-href {
@@ -245,6 +288,29 @@ h5,
     color: #fff;
 }
 
+.btn{
+    border-radius: 500px;
+}
+.add-btn{
+    border: solid 2px hsl(129, 100%, 30%);
+    background: #fff;
+    color: hsl(129, 100%, 30%);
+}
+.add-btn:hover{
+    background: hsl(129, 100%, 30%);
+    color: #fff;
+}
+.rm-btn{
+    border: solid 2px hsl(3, 100%, 30%);
+    background: #fff;
+    color: hsl(3, 100%, 30%);
+}
+.rm-btn:hover{
+    background-color: hsl(3, 100%, 30%);
+    color: #ffff;
+
+}
+
 .report {
     padding: 0.5rem;
     border-radius: 0.5rem;
@@ -254,26 +320,44 @@ h5,
 }
 .success-report {
     background: rgb(126, 255, 126);
-    border-color: rgb(0, 255, 0);
+    border-color: var(--green);
+}
+.success-report i.fas{
+    color: var(--green);
 }
 .invalid-input-report {
     background: rgb(255, 225, 126);
     border-color: rgb(252, 193, 0);
 }
+.invalid-input-report i.fas{
+    color: var(--red);
+}
 .missing-input-report {
     background: rgb(255, 180, 126);
     border-color: rgb(255, 106, 0);
 }
+.missing-input-report i.fas{
+    color: var(--red);
+}
 .err-report {
     background: rgb(255, 126, 126);
-    border-color: rgb(255, 0, 0);
+    border-color: var(--red);
+}
+.err-report i.fas{
+    color: var(--red);
 }
 .notice {
     background: rgb(126, 180, 255);
     border-color: rgb(0, 106, 255);
 }
+.notice i.fas{
+    color: rgb(0, 106, 255);
+}
 
+.first-input{
+    border-color:  hsl(129, 100%, 30%);
+}
 .locked-input {
-    border: var(--primary-color) solid 2px;
+    border: #999 solid 2px;
     font-weight: bolder;
 }

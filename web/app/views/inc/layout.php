@@ -19,23 +19,7 @@
 </head>
 <body>
 
-    <header>
-        <nav>
-            <div class="max-width-container">
-                Gestionnaire des maisons
-            </div>
-        </nav>
-    </header>
-
-<div class="body-container">
-    <?=$content?>
-</div>
-
-<footer>
-    <div class="max-width-container">
-            footer
-    </div>
-</footer>
+<?=$content?>
 
 <!-- SCRIPTS -->
 <?php if (isset($data['scripts_array'])): ?>
