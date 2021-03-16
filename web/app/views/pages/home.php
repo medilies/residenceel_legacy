@@ -23,8 +23,8 @@
 
 <div id="main">
     <main class="p1">
-        <div id="forms-container"></div>
-        <div id="reports-container"></div>
+        <div id="forms-container" class="pt3"></div>
+        <div id="reports-container" class="hidden pt3 pr05 pl05"></div>
     </main>
 
     <footer>

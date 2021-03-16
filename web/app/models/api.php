@@ -52,11 +52,13 @@ class Api extends Database
                 }
             }
         } catch (PDOException $e) {
-            // CATCH UNIQUE CONSTRAINT VIOLATION
-            return [
-                "REPORT" => "ERROR",
-                "CONTENT" => $e->getMessage(),
-            ];
+            if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$bloc_id' for key 'blocs\.PRIMARY'/", $e->getMessage())) {
+                return [
+                    "REPORT" => "ERROR",
+                    "CONTENT" => "Le bloc $bloc_id est déja enregistré",
+                ];
+            }
+            return Utility::create_report('ERROR', $e->getMessage());
         }
     }
 

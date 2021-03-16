@@ -38,6 +38,8 @@ html {
     margin: 0;
     box-sizing: border-box;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 50;
+    z-index: inherit;
 }
 
 a {
@@ -131,6 +133,36 @@ aside {
 
 main {
     min-height: calc(100vh - 2rem);
+    position: relative;
+}
+
+
+#forms-container{
+    width: fit-content;
+    width: max-content;
+    z-index: 5;
+}
+
+#reports-container{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 300px;
+    overflow: hidden;
+    background: #eeee;
+}
+
+.reports-toggler{
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 51;
+    background: #1167b1;
+    color: #fff;
+    border-radius: 0 0 0 8rem;
+    padding: 0.5rem 1rem 0.5rem 3rem;
 }
 
 footer {
@@ -193,6 +225,12 @@ h5,
 .inline {
     display: inline-block;
 }
+.block{
+    display: block;
+}
+.hidden{
+    display: none;
+}
 
 .flex-row-base {
     display: flex;
@@ -254,6 +292,9 @@ h5,
 .pt1 {
     padding-top: 1rem;
 }
+.pt3{
+    padding-top: 3rem;
+}
 
 .mt05{
     margin-top: 0.5rem;
@@ -290,9 +331,10 @@ h5,
 
 .btn{
     border-radius: 500px;
+    border: solid 3px #03254c;
 }
 .add-btn{
-    border: solid 2px hsl(129, 100%, 30%);
+    border-color: hsl(129, 100%, 30%);
     background: #fff;
     color: hsl(129, 100%, 30%);
 }
@@ -301,7 +343,7 @@ h5,
     color: #fff;
 }
 .rm-btn{
-    border: solid 2px hsl(3, 100%, 30%);
+    border-color: hsl(3, 100%, 30%);
     background: #fff;
     color: hsl(3, 100%, 30%);
 }
@@ -309,6 +351,10 @@ h5,
     background-color: hsl(3, 100%, 30%);
     color: #ffff;
 
+}
+
+.pointer{
+    cursor: pointer;
 }
 
 .report {

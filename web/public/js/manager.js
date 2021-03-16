@@ -385,11 +385,39 @@ class UI {
             icon = "<i class='fas fa-exclamation'></i> ";
         }
 
+        if (this.reportsContainer.classList.contains("hidden")) {
+            if (reportObj.REPORT === "SUCCESSFUL_INSERTION") {
+                this.reportDivToggler.style.background = "green";
+            } else {
+                this.reportDivToggler.style.background = "orange";
+            }
+        }
+
         report.innerHTML = new Date() + "<br>" + icon + reportObj.CONTENT;
         this.reportsContainer.prepend(report);
     }
 
+    appendReportDivToggler() {
+        this.reportDivToggler = document.createElement("div");
+        this.reportDivToggler.classList.add(
+            "reports-toggler",
+            "header5",
+            "pointer"
+        );
+        this.reportDivToggler.innerHTML =
+            "<i class='fas fa-angle-double-left'></i>";
+
+        document.querySelector("main").appendChild(this.reportDivToggler);
+
+        return Promise.resolve("add event listener");
+    }
+
+    /**
+     * @param {string} currentHash
+     */
     highlightasideMenuLocation(currentHash) {
+        // Avoid root location causing undefined hash
+        if (currentHash === "") return;
         const asideMenu = document.querySelector("aside");
         const menuTarget = document.querySelector(`[href='${currentHash}']`);
 
@@ -532,6 +560,9 @@ const ui = new UI(
 const fetcher = new Fetcher();
 const formSubmitter = new FormSubmitter();
 
+ui.appendReportDivToggler().then(reportDivToggler_eventListener);
+
+// state variable
 let tempBlocsData = null;
 
 window.onhashchange = () => {
@@ -667,5 +698,21 @@ function searchApt_EventListeners() {
             .catch((err) => {
                 console.error(err);
             });
+    });
+}
+
+function reportDivToggler_eventListener() {
+    ui.reportDivToggler.addEventListener("click", () => {
+        const icon = ui.reportDivToggler.querySelector("i");
+        ui.reportDivToggler.style.background = "var(--primary-color)";
+
+        ui.reportsContainer.classList.toggle("hidden");
+        if (ui.reportsContainer.classList.contains("hidden")) {
+            icon.classList.add("fa-angle-double-left");
+            icon.classList.remove("fa-angle-double-right");
+        } else {
+            icon.classList.remove("fa-angle-double-left");
+            icon.classList.add("fa-angle-double-right");
+        }
     });
 }
