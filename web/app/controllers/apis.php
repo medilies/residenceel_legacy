@@ -11,7 +11,7 @@ class Apis extends Controller
 
     public function index()
     {
-        echo "hey";
+        echo json_encode("hey");
     }
 
     public function insert_block()
@@ -29,8 +29,8 @@ class Apis extends Controller
         }
         // ASSUMES that [3-8] apts/floor
         if (!isset($_POST['apts']) || !is_array($_POST['apts']) ||
-            (sizeof($_POST['apts']) < 3 || sizeof($_POST['apts']) > 8)) {
-            $msg = "Un minimum de 3 apartements par étage est mondataire";
+            (sizeof($_POST['apts']) < 2 || sizeof($_POST['apts']) > 7)) {
+            $msg = "Un minimum de 2 apartements par étage est mondataire";
         }
 
         if (isset($msg)) {
@@ -42,7 +42,6 @@ class Apis extends Controller
         echo json_encode($result);
     }
 
-    // >>>>>>>>>>>>>>>>>>>> UPGRATE VALIDATION AND MISSINGS APTS CHECK (use the already savec bloc and apts)
     public function insert_apts()
     {
         $result = $this->ApiModel->insert_apts($_POST);
@@ -56,17 +55,17 @@ class Apis extends Controller
         echo json_encode($blocs);
     }
 
-    public function search_apt()
+    public function search_apt($apt_label, $floor_nb)
     {
-        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+        if ($_SERVER['REQUEST_METHOD'] !== "GET") {
             echo json_encode(Utility::create_report('ERROR', "wrong access method"));
             return;
         }
 
-        if (!isset($_POST['apt_label']) || empty(trim($_POST['apt_label']))) {
+        if (!isset($apt_label) || empty(trim($apt_label))) {
             $msg = "Le tag d'apartement est mondataire!";
         }
-        if (!isset($_POST['floor_nb']) || empty(trim($_POST['floor_nb']))) {
+        if (!isset($floor_nb) || empty(trim($floor_nb))) {
             $msg = "Le numéro d'étages est mondataire!";
         }
         if (isset($msg)) {
@@ -74,7 +73,7 @@ class Apis extends Controller
             return;
         }
 
-        $apt = $this->ApiModel->search_apt($_POST);
+        $apt = $this->ApiModel->search_apt(strtoupper($apt_label), intval($floor_nb));
         echo json_encode($apt);
 
     }

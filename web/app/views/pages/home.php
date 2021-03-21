@@ -1,5 +1,5 @@
 <?php ob_start();?>
-<div id="aside">
+<div id="aside" class="bg white">
     <aside class="pt1">
         <div class="pl1">
             <p class="header4"><i class="fas fa-search"></i> Chercher:</p>
@@ -14,9 +14,9 @@
         </div>
         <div class="pl1">
             <p class="header4"><i class="fas fa-check-square"></i> Enregistrer:</p>
-            <a class="header5 aside-href ml1" href="#ins-bloc" aside-href>Enregistrer un bloc</a>
-            <a class="header5 aside-href ml1" href="#ins-apt" aside-href>Enregistrer des maisons</a>
-            <a class="header5 aside-href ml1" href="#client" aside-href>Enregistrer un client</a>
+            <a class="header5 aside-href ml1" href="#ins-bloc" aside-href>Nouveau bloc</a>
+            <a class="header5 aside-href ml1" href="#ins-apt" aside-href>Nouvelles maisons</a>
+            <a class="header5 aside-href ml1" href="#client" aside-href>Nouveau client</a>
         </div>
     </aside>
 </div>
@@ -27,9 +27,9 @@
         <div id="reports-container" class="hidden pt3 pr05 pl05"></div>
     </main>
 
-    <footer>
+    <footer class="bg4 white">
         <div class="max-width-container">
-            footer
+            ...
         </div>
     </footer>
 </div>

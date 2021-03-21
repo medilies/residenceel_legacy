@@ -2,7 +2,8 @@ use hm;
 
 CREATE TABLE blocs(
     bloc_id VARCHAR(3) PRIMARY KEY,
-    floors_nb INTEGER NOT NULL
+    floors_nb INTEGER NOT NULL,
+    has_houses TINYINT NOT NULL DEFAULT 0
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE apts(
@@ -14,12 +15,13 @@ CREATE TABLE apts(
 
 CREATE TABLE houses(
     house_id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    house_hash VARCHAR(100) UNIQUE,
+    house_hash VARCHAR(100) UNIQUE NOT NULL,
     apt_label VARCHAR(6) NOT NULL,
     floor_nb INTEGER NOT NULL,
     surface FLOAT NOT NULL,
     surface_real FLOAT NOT NULL,
-    FOREIGN KEY (apt_label) REFERENCES apts(apt_label) on DELETE CASCADE
+    FOREIGN KEY (apt_label) REFERENCES apts(apt_label) on DELETE CASCADE,
+    CONSTRAINT apt_per_floor UNIQUE(floor_nb, apt_label)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE clients(
@@ -45,4 +47,6 @@ CREATE USER 'INSERTOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
 GRANT INSERT ON hm.* TO 'INSERTOR'@'%';
 
 CREATE USER 'UPDATOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
-GRANT UPDATE ON hm.* TO 'UPDATOR'@'%';
+GRANT SELECT, UPDATE ON hm.* TO 'UPDATOR'@'%';
+
+-- SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));

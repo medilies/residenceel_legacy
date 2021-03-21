@@ -12,8 +12,10 @@ class UI {
         this.insApts_FloorsInputNameIterator = 0;
     }
 
-    emptyContainer() {
+    reset() {
         this.formsContainer.innerHTML = "";
+        this.insBloc_AptInputNameIterator = 0;
+        this.insApts_FloorsInputNameIterator = 0;
     }
 
     /**
@@ -75,10 +77,10 @@ class UI {
 
     insBloc_addApt() {
         // MAX 8 apts/floor
-        if (this.insBloc_AptInputNameIterator >= 8) return;
+        if (this.insBloc_AptInputNameIterator >= 7) return;
 
-        const blocIdInput = document.querySelector(
-            "#" + this.insBloc_blocIdInput_id
+        const blocIdInput = document.getElementById(
+            this.insBloc_blocIdInput_id
         );
         const aptLabelBlocPrefix = blocIdInput.value;
         // Bloc tag must be set
@@ -97,11 +99,11 @@ class UI {
         const aptLabelDefaultValue = `${aptLabelBlocPrefix}-${this.insBloc_AptInputNameIterator}`;
 
         const apt = document.createElement("div");
-        apt.classList.add("flex-row-base", "bg-w", "br1", "mt05", "mb05");
+        apt.classList.add("flex-row-base", "bg-w", "br05", "mt05", "mb05");
         apt.innerHTML = `
             <div class="ml1">
                 <label for="apts[${i}][apt_label]">Apartement</label>
-                <input name="apts[${i}][apt_label]" value="${aptLabelDefaultValue}" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
+                <input name="apts[${i}][apt_label]" value="${aptLabelDefaultValue}" type="text" required readonly pattern="[a-zA-Z][0-9]?-[1-8]" class="w5 locked-input"/>
             </div>
             
             <div class="ml1">
@@ -110,8 +112,8 @@ class UI {
             </div>
         `;
 
-        const aptContainer = document.querySelector(
-            "#" + this.insBloc_aptContainerDiv_id
+        const aptContainer = document.getElementById(
+            this.insBloc_aptContainerDiv_id
         );
         aptContainer.appendChild(apt);
     }
@@ -180,8 +182,8 @@ class UI {
     insApts_addFloor(blocsData) {
         if (this.insApts_FloorsInputNameIterator >= 5) return;
 
-        const floorsContainer = document.querySelector(
-            "#" + this.insApts_floorsContainerDiv_id
+        const floorsContainer = document.getElementById(
+            this.insApts_floorsContainerDiv_id
         );
 
         // will iterate inside insApts_floorApts()
@@ -214,9 +216,7 @@ class UI {
         let aptsDivs = "";
         // console.table(blocsData);
 
-        const blocSelect = document.querySelector(
-            "#" + this.insApts_selectBloc_id
-        );
+        const blocSelect = document.getElementById(this.insApts_selectBloc_id);
         blocSelect.style.pointerEvents = "none";
         blocSelect.classList.add("locked-input");
         const bloc_id = blocSelect.value;
@@ -284,8 +284,8 @@ class UI {
     }
 
     searchApt_displayResult(aptData) {
-        const searchApt_result_div = document.querySelector(
-            "#" + this.searchApt_resultDiv_id
+        const searchApt_result_div = document.getElementById(
+            this.searchApt_resultDiv_id
         );
 
         const table = `
@@ -319,6 +319,7 @@ class UI {
 
         let table = `
         <table>
+            <caption>La liste des maisons libres</caption>
             <tr>
                 <th>ID maison</th>
                 <th>Bloc</th>
@@ -332,10 +333,10 @@ class UI {
         freeAptsData.forEach((house) => {
             table += `
             <tr>
-                <td>${house.house_hash}</td>
+                <td class="tiny-text">${house.house_hash}</td>
                 <td>${house.bloc_id}</td>
-                <td>${house.floor_nb}</td>
-                <td>${house.apt_label}</td>
+                <td class="bold">${house.floor_nb}</td>
+                <td class="bold">${house.apt_label}</td>
                 <td>${house.apt_type}</td>
                 <td>${house.surface}</td>
                 <td>${house.surface_real}</td>
@@ -393,7 +394,12 @@ class UI {
             }
         }
 
-        report.innerHTML = new Date() + "<br>" + icon + reportObj.CONTENT;
+        const now = new Date();
+        const timing = `${now.getDate()}/${
+            now.getMonth() + 1
+        }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+
+        report.innerHTML = timing + "<br>" + icon + reportObj.CONTENT;
         this.reportsContainer.prepend(report);
     }
 
@@ -438,35 +444,26 @@ class UI {
 
 class FormSubmitter {
     constructor() {
-        this.protocol = window.location.protocol;
-        this.hostname = window.location.hostname;
-        this.port = window.location.port;
+        this.baseUrl = location.origin;
     }
 
-    insBloc_submit(formData) {
-        fetch("http://localhost:50080/apis/insert_block", {
+    insBloc_submit(formData, submitBtn) {
+        this.submit(formData, "/apis/insert_block", submitBtn);
+    }
+
+    insApts_submit(formData, submitBtn) {
+        this.submit(formData, "/apis/insert_apts", submitBtn);
+    }
+
+    submit(formData, api, submitBtn) {
+        fetch(`${this.baseUrl}${api}`, {
             method: "post",
             body: formData,
         })
             .then((res) => res.json())
             .then((json) => {
                 console.log(json);
-                this.#formSubmitIncomeAction(json, ui.insBloc_submitBtn_id);
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
-
-    insApts_submit(formData) {
-        fetch("http://localhost:50080/apis/insert_apts", {
-            method: "post",
-            body: formData,
-        })
-            .then((res) => res.json())
-            .then((json) => {
-                console.log(json);
-                this.#formSubmitIncomeAction(json, ui.insApts_submitBtn_id);
+                this.formSubmitIncomeAction(json, submitBtn);
             })
             .catch((err) => {
                 throw err;
@@ -478,9 +475,9 @@ class FormSubmitter {
      * - Refresh the page if the submission was successful
      * - Redisplay the submit button to ressubmit the corrected form
      * @param {object} json server response {REPORT, CONTENT}
-     * @param {string} submitBtnId
+     * @param {HTMLButtonElement} submitBtn
      */
-    #formSubmitIncomeAction(json, submitBtnId) {
+    formSubmitIncomeAction(json, submitBtn) {
         ui.appendReportDiv(json);
 
         if (json.REPORT === "SUCCESSFUL_INSERTION")
@@ -488,35 +485,34 @@ class FormSubmitter {
                 window.location = window.location.origin;
             }, 3000);
         else {
-            document.querySelector("#" + submitBtnId).style.display = "block";
+            submitBtn.style.display = "block";
         }
     }
 }
 
 class Fetcher {
     constructor() {
-        this.protocol = window.location.protocol;
-        this.hostname = window.location.hostname;
-        this.port = window.location.port;
+        this.baseUrl = location.origin;
     }
 
     getBlocs() {
-        return fetch("http://localhost:50080/apis/get_blocs").then((res) =>
+        return fetch(`${this.baseUrl}/apis/get_blocs`).then((res) =>
             res.json()
         );
     }
 
     getFreeHouses() {
-        return fetch(
-            "http://localhost:50080/apis/get_free_houses"
-        ).then((res) => res.json());
+        return fetch(`${this.baseUrl}/apis/get_free_houses`).then((res) =>
+            res.json()
+        );
     }
 
     getApt(formData) {
-        return fetch("http://localhost:50080/apis/search_apt", {
-            method: "post",
-            body: formData,
-        }).then((res) => res.json());
+        const aptLabel = formData.get("apt_label");
+        const floorNb = formData.get("floor_nb");
+        return fetch(
+            `${this.baseUrl}/apis/search_apt/${aptLabel}/${floorNb}`
+        ).then((res) => res.json());
     }
 
     /**
@@ -560,6 +556,8 @@ const ui = new UI(
 const fetcher = new Fetcher();
 const formSubmitter = new FormSubmitter();
 
+const reportAll = true;
+
 ui.appendReportDivToggler().then(reportDivToggler_eventListener);
 
 // state variable
@@ -572,14 +570,14 @@ window.onload = () => {
     locationChanges();
 };
 function locationChanges() {
-    ui.emptyContainer();
+    ui.reset();
 
     const hash = window.location.hash;
 
     ui.highlightasideMenuLocation(hash);
 
     if (hash === "#srch-apt") {
-        ui.searchApt().then(searchApt_EventListeners);
+        ui.searchApt().then(searchApt_eventListeners);
     } else if (hash === "#list-apt-free") {
         fetcher
             .getFreeHouses()
@@ -588,6 +586,8 @@ function locationChanges() {
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     ui.displayFreeHouses(json.CONTENT);
                 } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                } else if (reportAll) {
                     ui.appendReportDiv(json);
                 }
             })
@@ -607,6 +607,8 @@ function locationChanges() {
                     ui.insApts(blocs).then(insApts_eventListeners);
                 } else if (json.REPORT === "NOTICE") {
                     ui.appendReportDiv(json);
+                } else if (reportAll) {
+                    ui.appendReportDiv(json);
                 }
             })
             .catch((err) => {
@@ -616,18 +618,16 @@ function locationChanges() {
 }
 
 function insBloc_eventListeners() {
-    const insBlocForm = document.querySelector("#" + ui.insBloc_form_id);
+    const insBloc_form = document.getElementById(ui.insBloc_form_id);
 
-    insBlocForm.addEventListener("submit", (e) => {
+    insBloc_form.addEventListener("submit", (e) => {
         e.preventDefault();
-
-        document.querySelector("#" + ui.insBloc_submitBtn_id).style.display =
-            "none";
-
-        formSubmitter.insBloc_submit(new FormData(insBlocForm));
+        const submitBtn = document.getElementById(ui.insBloc_submitBtn_id);
+        submitBtn.style.display = "none";
+        formSubmitter.insBloc_submit(new FormData(insBloc_form), submitBtn);
     });
 
-    insBlocForm.addEventListener("click", (e) => {
+    insBloc_form.addEventListener("click", (e) => {
         const target = e.target;
 
         if (target.hasAttribute(ui.insBloc_addApt_attr)) {
@@ -639,24 +639,15 @@ function insBloc_eventListeners() {
 }
 
 function insApts_eventListeners() {
-    const insApt_form = document.querySelector("#" + ui.insApts_form_id);
+    const insApt_form = document.getElementById(ui.insApts_form_id);
 
     insApt_form.addEventListener("submit", (e) => {
         e.preventDefault();
-
-        formSubmitter.insApts_submit(new FormData(insApt_form));
+        const submitBtn = document.getElementById(ui.insApts_submitBtn_id);
+        submitBtn.style.display = "none";
+        formSubmitter.insApts_submit(new FormData(insApt_form), submitBtn);
     });
 
-    /**
-     * Handles the following clicks:
-     *
-     * - add a serie of floors
-     * - remove the serie of floors
-     * - add an apartement
-     * - remove the apartement
-     *
-     * clicks are distnguished by HTML attributes and their effect is very sensitive to the hierarchy of divs (targetting parents)
-     */
     insApt_form.addEventListener("click", (e) => {
         const target = e.target;
 
@@ -668,28 +659,27 @@ function insApts_eventListeners() {
     });
 }
 
-function searchApt_EventListeners() {
-    const searchApt_form = document.querySelector("#" + ui.searchApt_form_id);
+function searchApt_eventListeners() {
+    const searchApt_form = document.getElementById(ui.searchApt_form_id);
 
     searchApt_form.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        document.querySelector("#" + ui.searchApt_submitBtn_id).style.display =
-            "none";
+        const searchBtn = document.getElementById(ui.searchApt_submitBtn_id);
+        searchBtn.style.display = "none";
 
         fetcher
             .getApt(new FormData(searchApt_form))
             .then((json) => {
-                document.querySelector(
-                    "#" + ui.searchApt_resultDiv_id
-                ).innerHTML = "";
-                document.querySelector(
-                    "#" + ui.searchApt_submitBtn_id
-                ).style.display = "block";
+                document.getElementById(ui.searchApt_resultDiv_id).innerHTML =
+                    "";
+                searchBtn.style.display = "block";
 
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     ui.searchApt_displayResult(json.CONTENT);
                 } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                } else if (reportAll) {
                     ui.appendReportDiv(json);
                 } else {
                     console.warn("Unexpected response");

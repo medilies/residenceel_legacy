@@ -13,23 +13,31 @@ class Api extends Database
         $bloc_floors_nb = intval($posted_bloc['floors_nb']);
         $apts_and_types = $posted_bloc['apts'];
 
-        // VALIDATION:
-        if (!preg_match("/[a-zA-Z][0-9]?/", $bloc_id)) {
+        if (!ValidationBlock::bloc($bloc_id)) {
             return Utility::create_report('INVALID_DATA', "Tag du bloc $bloc_id est invalid! FORME VALIDE: [A-Z][0-9]");
         }
-        if ($bloc_floors_nb < 5 || $bloc_floors_nb > 20) {
+        if (!ValidationBlock::floors_nb($bloc_floor_nb)) {
             return Utility::create_report('INVALID_DATA', "Nombre d'étages $bloc_floors_nb n'est pas dans l'interval [5-20]");
         }
+
+        $unique_apt_label_checker = [];
         foreach ($apts_and_types as $apt) {
             $apt_label = strtoupper($apt['apt_label']);
             $apt_type = strtoupper($apt['apt_type']);
 
-            if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
+            array_push($unique_apt_label_checker, $apt_label);
+
+            if (!ValidationBlock::apt_to_bloc($apt_label, $bloc_id)) {
                 return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8]");
             }
-            if (!$this->is_valid_apt_type($apt_type)) {
+            if (!ValidationBlock::apt_type($apt_type)) {
                 return Utility::create_report('INVALID_DATA', "Type d'apartement $apt_type est invalid! FORME VALIDE: F[1-5]");
             }
+        }
+
+        //>>>>>>>>
+        if ($unique_apt_label_checker != array_unique($unique_apt_label_checker)) {
+            return Utility::create_report("INVALID_DATA", "Assurer que tout les tags des apartements sont uniques");
         }
 
         try {
@@ -38,7 +46,7 @@ class Api extends Database
             $bloc->bindParam(':bloc_id', $bloc_id, PDO::PARAM_STR);
             $bloc->bindParam(':floors_nb', $bloc_floors_nb, PDO::PARAM_INT);
             if ($bloc->execute()) {
-                //
+
                 $query2 = 'INSERT INTO apts(apt_label, apt_type, bloc_id) VALUES';
                 foreach ($apts_and_types as $apt) {
                     $apt_label = strtoupper($apt['apt_label']);
@@ -84,7 +92,7 @@ class Api extends Database
      */
     public function insert_apts(array $apts_data): array
     {
-        $bloc_id = $apts_data['bloc_id'];
+        $bloc_id = strtoupper($apts_data['bloc_id']);
 
         $query0 = "SELECT floors_nb FROM blocs WHERE bloc_id = '$bloc_id'";
         $bloc_floor_nb = $this->Selector->prepare($query0);
@@ -100,7 +108,7 @@ class Api extends Database
 
             $floors_str = $floors['floors'];
 
-            if (!preg_match("/^(1?[0-9];)*1?[0-9];?$/", $floors_str)) {
+            if (!ValidationBlock::floors_serie($floors_str)) {
                 return Utility::create_report('INVALID_DATA', "La serie d'étages $floors_str est invalid! FORME VALIDE: NUMÉROS SEPARÉS AVEC DES POINT VIRGULE ';'");
             }
 
@@ -117,14 +125,14 @@ class Api extends Database
 
                 foreach ($floors['houses'] as $house) {
 
-                    $apt_label = $house['apt_label'];
+                    $apt_label = strtoupper($house['apt_label']);
                     $surface = floatval($house['surface']);
                     $surface_real = floatval($house['surface_real']);
 
-                    if (!$this->is_valide_apt_to_bloc($apt_label, $bloc_id)) {
+                    if (!ValidationBlock::apt_to_bloc($apt_label, $bloc_id)) {
                         return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $bloc_id-[1-8]");
                     }
-                    if (!$this->is_valid_surface($surface, $surface_real)) {
+                    if (!ValidationBlock::surface($surface, $surface_real)) {
                         return Utility::create_report('INVALID_DATA', "Suraface $surface et $surface_real de $apt_label doivent etre dans linterval [50.00-200.00]!");
                     }
 
@@ -194,7 +202,7 @@ class Api extends Database
             ON houses.apt_label = apts.apt_label
             WHERE houses.house_id
                 NOT IN (SELECT deals.house_id FROM deals)
-            ORDER BY apts.bloc_id, houses.floor_nb";
+            ORDER BY apts.bloc_id, houses.floor_nb, houses.apt_label";
 
         try {
             $apts = $this->Selector->prepare($query);
@@ -212,12 +220,9 @@ class Api extends Database
 
     }
 
-    public function search_apt($apt_filter)
+    public function search_apt($apt_label, $floor_nb)
     {
-        $apt_label = strtoupper($_POST['apt_label']);
-        $floor_nb = intval($_POST['floor_nb']);
-
-        if (!preg_match('/^[A-Z][0-9]?-[1-8]$/', $apt_label)) {
+        if (!ValidationBlock::apt($apt_label)) {
             return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $[A-Z][0-9]-[1-8]");
         }
 
@@ -246,46 +251,5 @@ class Api extends Database
             return Utility::create_report('ERROR', $e->getMessage());
         }
 
-    }
-
-    //**************************************** */
-    //              VALIDATION
-    //**************************************** */
-
-    private function is_valid_apt_type(string $apt_type): bool
-    {
-        if (
-            preg_match("/^F[2-5]$/", $apt_type)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    private function is_valide_apt_to_bloc($apt_label, $bloc_id): bool
-    {
-        if (
-            strpos($apt_label, $bloc_id) === 0 &&
-            preg_match("/^$bloc_id-[1-8]$/", $apt_label)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private function is_valid_surface(float $surface, float $surface_real): bool
-    {
-        if (
-            $surface >= 50 &&
-            $surface <= 200 &&
-            $surface_real >= 50 &&
-            $surface_real <= 200) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

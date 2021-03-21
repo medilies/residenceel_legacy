@@ -21,12 +21,14 @@
     --header4-size: 24px;
     --header5-size: 20px;
     --text-size: 16px;
+    --text-tiny-size: 12px;
     --header1-line-h: 72px;
     --header2-line-h: 56px;
     --header3-line-h: 40px;
     --header4-line-h: 32px;
     --header5-line-h: 28px;
     --text-line-h: 24px;
+    --text-tiny-line-h: 16px;
 }
 
 html {
@@ -55,11 +57,11 @@ label {
 
 button,
 input,
-select{
+select {
     box-sizing: content-box;
     font-size: var(--header5-size);
     line-height: var(--header5-line-h);
-    padding: 0.5rem;
+    padding: 0.125rem 0.5rem;
     margin-bottom: 0.5rem;
     width: 15rem;
     border: 1px solid #000;
@@ -73,9 +75,10 @@ label {
 }
 
 button {
+    color: #000;
     border: none;
     background: var(--primary-color);
-    color: #000;
+    padding: 0.25rem 0.5rem;
     cursor: pointer;
 }
 
@@ -85,7 +88,7 @@ button:hover {
 }
 
 input,
-select{
+select {
     border: #1167b1 solid 2px;
 }
 
@@ -99,25 +102,32 @@ table {
 }
 
 td,
-th {
-    border: 1px #000 solid;
+th,
+caption {
+    border: 1px #999 solid;
     padding: 0.5rem;
 }
 
-th{
+th {
     background: #1167b1;
     color: #fff;
+}
+
+caption {
+    background: #fff;
+}
+tr:nth-child(2n + 2) {
+    background: #fff;
+}
+tr:nth-child(2n + 3) {
+    background: #def;
 }
 
 /**************************************************************************/
 /*                        LAYOUT ELEMENTS  */
 /**************************************************************************/
-body{
+body {
     display: flex;
-}
-
-#aside {
-    background-color: var(--primary-color1);
 }
 
 aside {
@@ -125,7 +135,7 @@ aside {
     height: 100vh;
 }
 
-#main{
+#main {
     flex: 1;
     height: 100vh;
     overflow: auto;
@@ -136,14 +146,13 @@ main {
     position: relative;
 }
 
-
-#forms-container{
+#forms-container {
     width: fit-content;
     width: max-content;
     z-index: 5;
 }
 
-#reports-container{
+#reports-container {
     position: absolute;
     top: 0;
     right: 0;
@@ -154,12 +163,12 @@ main {
     background: #eeee;
 }
 
-.reports-toggler{
+.reports-toggler {
     position: absolute;
     top: 0;
     right: 0;
     z-index: 51;
-    background: #1167b1;
+    background: var(--primary-color);
     color: #fff;
     border-radius: 0 0 0 8rem;
     padding: 0.5rem 1rem 0.5rem 3rem;
@@ -167,8 +176,6 @@ main {
 
 footer {
     height: 2rem;
-    background-color: #333;
-    color: #fff;
 }
 
 .max-width-container {
@@ -208,8 +215,15 @@ h5,
     font-size: var(--text-size);
     line-height: var(--text-line-h);
 }
+.tiny-text {
+    font-size: var(--text-tiny-size);
+    line-height: var(--text-tiny-line-h);
+}
 .u {
     text-decoration: underline;
+}
+.bold {
+    font-weight: bold;
 }
 .bolder {
     font-weight: bolder;
@@ -225,10 +239,10 @@ h5,
 .inline {
     display: inline-block;
 }
-.block{
+.block {
     display: block;
 }
-.hidden{
+.hidden {
     display: none;
 }
 
@@ -238,14 +252,27 @@ h5,
     align-items: flex-end;
 }
 
-.bg-l-grey {
-    background: #ccc;
+.bg {
+    background: var(--primary-color);
 }
-.bg-w{
+.bg4 {
+    background: var(--primary-color4);
+}
+.bg-l-grey {
+    background: #ddd;
+}
+.bg-w {
     background: #fff;
 }
 
-.br1{
+.white {
+    color: #fff;
+}
+
+.br05 {
+    border-radius: 0.5rem;
+}
+.br1 {
     border-radius: 1rem;
 }
 
@@ -264,7 +291,7 @@ h5,
 .w21 {
     width: 21rem;
 }
-.wp1{
+.wp1 {
     width: fit-content;
     width: max-content;
     padding-left: 1rem;
@@ -274,7 +301,7 @@ h5,
 .p05 {
     padding: 0.5rem;
 }
-.pr05{
+.pr05 {
     padding-right: 0.5rem;
 }
 .pl05 {
@@ -283,7 +310,7 @@ h5,
 .p1 {
     padding: 1rem;
 }
-.pr1{
+.pr1 {
     padding-right: 1rem;
 }
 .pl1 {
@@ -292,17 +319,17 @@ h5,
 .pt1 {
     padding-top: 1rem;
 }
-.pt3{
+.pt3 {
     padding-top: 3rem;
 }
 
-.mt05{
+.mt05 {
     margin-top: 0.5rem;
 }
-.mb05{
+.mb05 {
     margin-bottom: 0.5rem;
 }
-.mt1{
+.mt1 {
     margin-top: 1rem;
 }
 .mb1 {
@@ -312,10 +339,10 @@ h5,
     margin-left: 1rem;
 }
 
-.red{
+.red {
     color: var(--red);
 }
-.green{
+.green {
     color: var(--green);
 }
 
@@ -323,37 +350,36 @@ h5,
     display: block;
 }
 .aside-focused-section {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color4);
 }
 .aside-focused-href {
-    color: #fff;
+    color: var(--complementary-color21);
 }
 
-.btn{
+.btn {
     border-radius: 500px;
     border: solid 3px #03254c;
 }
-.add-btn{
+.add-btn {
     border-color: hsl(129, 100%, 30%);
     background: #fff;
     color: hsl(129, 100%, 30%);
 }
-.add-btn:hover{
+.add-btn:hover {
     background: hsl(129, 100%, 30%);
     color: #fff;
 }
-.rm-btn{
+.rm-btn {
     border-color: hsl(3, 100%, 30%);
     background: #fff;
     color: hsl(3, 100%, 30%);
 }
-.rm-btn:hover{
+.rm-btn:hover {
     background-color: hsl(3, 100%, 30%);
     color: #ffff;
-
 }
 
-.pointer{
+.pointer {
     cursor: pointer;
 }
 
@@ -368,40 +394,40 @@ h5,
     background: rgb(126, 255, 126);
     border-color: var(--green);
 }
-.success-report i.fas{
+.success-report i.fas {
     color: var(--green);
 }
 .invalid-input-report {
     background: rgb(255, 225, 126);
     border-color: rgb(252, 193, 0);
 }
-.invalid-input-report i.fas{
+.invalid-input-report i.fas {
     color: var(--red);
 }
 .missing-input-report {
     background: rgb(255, 180, 126);
     border-color: rgb(255, 106, 0);
 }
-.missing-input-report i.fas{
+.missing-input-report i.fas {
     color: var(--red);
 }
 .err-report {
     background: rgb(255, 126, 126);
     border-color: var(--red);
 }
-.err-report i.fas{
+.err-report i.fas {
     color: var(--red);
 }
 .notice {
     background: rgb(126, 180, 255);
     border-color: rgb(0, 106, 255);
 }
-.notice i.fas{
+.notice i.fas {
     color: rgb(0, 106, 255);
 }
 
-.first-input{
-    border-color:  hsl(129, 100%, 30%);
+.first-input {
+    border-color: hsl(129, 100%, 30%);
 }
 .locked-input {
     border: #999 solid 2px;
