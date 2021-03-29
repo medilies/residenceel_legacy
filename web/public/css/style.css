@@ -14,7 +14,7 @@
     --red: #f00;
     --green: #0f0;
     --max-width: 1400px;
-    --aside-width: 320px;
+    --aside-width: 300px;
     --header1-size: 64px;
     --header2-size: 48px;
     --header3-size: 32px;
@@ -183,6 +183,16 @@ footer {
     margin: 0 auto;
 }
 
+.overlay {
+    background: #9999;
+    z-index: 8;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
 /**************************************************************************/
 /*                        CLASSES  */
 /**************************************************************************/
@@ -236,20 +246,22 @@ h5,
     border-radius: 9px;
     background: #fff;
 }
-.inline {
-    display: inline-block;
-}
-.block {
-    display: block;
-}
-.hidden {
-    display: none;
-}
 
 .flex-row-base {
     display: flex;
     flex-flow: row wrap;
     align-items: flex-end;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-x {
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .bg {
@@ -296,6 +308,19 @@ h5,
     width: max-content;
     padding-left: 1rem;
     padding-right: 1rem;
+}
+
+.inline {
+    display: inline-block;
+}
+.block {
+    display: block;
+}
+.flex {
+    display: flex;
+}
+.hidden {
+    display: none;
 }
 
 .p05 {
@@ -381,6 +406,12 @@ h5,
 
 .pointer {
     cursor: pointer;
+}
+
+.clickable-text {
+    cursor: pointer;
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
 .report {

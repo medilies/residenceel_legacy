@@ -1,6 +1,6 @@
 <?php
 
-class Apis extends Controller
+class Apis_blocks extends Controller
 {
 
     public function __construct()
@@ -55,7 +55,7 @@ class Apis extends Controller
         echo json_encode($blocs);
     }
 
-    public function search_apt($apt_label, $floor_nb)
+    public function search_house($apt_label, $floor_nb)
     {
         if ($_SERVER['REQUEST_METHOD'] !== "GET") {
             echo json_encode(Utility::create_report('ERROR', "wrong access method"));
@@ -73,7 +73,7 @@ class Apis extends Controller
             return;
         }
 
-        $apt = $this->ApiModel->search_apt(strtoupper($apt_label), intval($floor_nb));
+        $apt = $this->ApiModel->search_house(strtoupper($apt_label), intval($floor_nb));
         echo json_encode($apt);
 
     }
@@ -82,6 +82,17 @@ class Apis extends Controller
     {
         $free_houses = $this->ApiModel->get_free_houses();
         echo json_encode($free_houses);
+    }
+
+    public function insert_client()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
+        $result = $this->ApiModel->insert_client($_POST);
+        echo json_encode($result);
     }
 
     /**

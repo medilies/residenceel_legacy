@@ -1,0 +1,90 @@
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+div {
+    font-family: "Times New Roman", serif;
+    font-size: 14px;
+}
+
+footer {
+    position: absolute;
+    bottom: 72px;
+}
+
+.header1 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    margin: 0;
+}
+.header2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+}
+.header4 {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.center-text {
+    text-align: center;
+}
+.right-text {
+    text-align: right;
+}
+.bold {
+    font-weight: bold;
+}
+
+.pdf-page {
+    width: 90%;
+    margin: auto;
+}
+
+.bg-b {
+    background: #0c0c0c;
+}
+
+.white {
+    color: #fff;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+}
+
+.rel {
+    position: relative;
+}
+.abs {
+    position: absolute;
+}
+
+.center {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.mb36 {
+    margin-bottom: 36px;
+}
+.mb72 {
+    margin-bottom: 72px;
+}
+.mb300 {
+    margin-bottom: 300px;
+}
+
+.p18 {
+    padding: 18px;
+}

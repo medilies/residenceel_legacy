@@ -255,15 +255,107 @@ class UI {
         return aptsDivs;
     }
 
-    searchApt() {
-        const searchApt_div = document.createElement("div");
+    /**
+     * just an overlay that contains hidden forms
+     * @returns promesse to chain actions
+     */
+    transaction() {
+        const transaction_formsOverlay = document.createElement("div");
+        this.transaction_formsOverlay_id = "transaction_formsOverlay";
+        transaction_formsOverlay.id = this.transaction_formsOverlay_id;
+        transaction_formsOverlay.classList.add(
+            "overlay",
+            "hidden",
+            "flex-center"
+        );
+        this.hideOverlayEventListener(transaction_formsOverlay);
 
-        this.searchApt_form_id = "searchApt";
-        this.searchApt_submitBtn_id = "searchApt-submit-btn";
-        this.searchApt_resultDiv_id = "searchApt-result";
+        this.transaction_appendReserveForm(transaction_formsOverlay);
 
-        searchApt_div.innerHTML = `
-            <form id="${this.searchApt_form_id}">
+        document.body.appendChild(transaction_formsOverlay);
+
+        return Promise.resolve("go");
+    }
+
+    /**
+     *
+     * @param {HTMLDivElement} container
+     */
+    transaction_appendReserveForm(container) {
+        const transaction_reserveForm_div = document.createElement("div");
+        this.transaction_reserveForm_id = "transaction_reserveForm";
+        transaction_reserveForm_div.classList.add("bg-w", "p1", "center-xy");
+
+        transaction_reserveForm_div.innerHTML = `
+            <form id="${this.transaction_reserveForm_id}" class="hidden flex">
+            <div>
+                <label for="client_lname">Nom</label>
+                <input name="client_lname" type="text" required >
+                
+                <label for="client_fname">Prenom</label>
+                <input name="client_fname" type="text" required >
+
+                <label for="client_birthday">Date de naissance</label>
+                <input name="client_birthday" type="date">
+
+                <label for="client_birthplace">Lieu de naissance</label>
+                <input name="client_birthplace" type="text">
+
+                <label for="client_father_fname">Prenom du père</label>
+                <input name="client_father_fname" type="text">
+
+                <label for="client_mother_name">Nom complet de la mère</label>
+                <input name="client_mother_name" type="text">
+
+                <label for="client_cni_number">CNI n°</label>
+                <input name="client_cni_number" type="text" required pattent="[0-9]+">
+
+                <label for="client_cni_date">CNI délivré le</label>
+                <input name="client_cni_date" type="date">
+            </div>
+            <div>
+                <label for="client_phone">Telephone</label>
+                <input name="client_phone" type="tel" required>
+
+                <label for="client_email">email</label>
+                <input name="client_email" type="email" required>
+
+                <label for="client_marital_status">Etat civil</label>
+                <input name="client_marital_status" type="text">
+                
+                <label for="client_profession">Profession</label>
+                <input name="client_profession" type="text">
+                
+                <label for="client_income">Revenu</label>
+                <input name="client_income" type="text">
+                
+                <label for="payment">Payement</label>
+                <input name="payment" type="number" required>
+
+                <label for="payment_chars">Payement en lettre</label>
+                <input name="payment_chars" type="text">
+
+                <label for="payment_type">Cache</label>
+                <input name="payment_type" type="radio" value="cache" required/>
+                <label for"=payment_type">Bank</label>
+                <input name="payment_type" type="radio" value="bank" required/>
+
+                <button type="submit" class="inline wp1 btn add-btn">Enregistrer client + accord</button>
+            </div>
+            </form>`;
+
+        container.appendChild(transaction_reserveForm_div);
+    }
+
+    searchHouse() {
+        const searchHouse_div = document.createElement("div");
+
+        this.searchHouse_form_id = "searchHouse";
+        this.searchHouse_submitBtn_id = "searchHouse-submit-btn";
+        this.searchHouse_resultDiv_id = "searchHouse-result";
+
+        searchHouse_div.innerHTML = `
+            <form id="${this.searchHouse_form_id}">
 
                 <label for="apt_label">Apartement</label>
                 <input name="apt_label" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
@@ -271,24 +363,28 @@ class UI {
                 <label for="floor_nb">Etage</label>
                 <input name="floor_nb" type="number" required min="1" max="20" class="w4"/>
 
-                <button type="submit" id="${this.searchApt_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Chercher</button>
+                <button type="submit" id="${this.searchHouse_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Maison</button>
 
             </form>
 
-            <div id='${this.searchApt_resultDiv_id}'></div>
+            <div id='${this.searchHouse_resultDiv_id}'></div>
         `;
 
-        this.formsContainer.appendChild(searchApt_div);
+        this.formsContainer.appendChild(searchHouse_div);
 
         return Promise.resolve("add eventListeners");
     }
 
-    searchApt_displayResult(aptData) {
-        const searchApt_result_div = document.getElementById(
-            this.searchApt_resultDiv_id
+    searchHouse_displayResult(aptData) {
+        const searchHouse_result_div = document.getElementById(
+            this.searchHouse_resultDiv_id
         );
+        this.transaction_actionCell_id = "transaction_actionCell";
+        this.transaction_freeHouse_attr = "transaction_freeHouse";
+        // this.transaction_sellHouse_attr = "transaction_sellHouse";
+        this.transaction_reserveHouse_attr = "transaction_reserveHouse";
 
-        const table = `
+        let table = `
         <table>
             <tr>
                 <th>ID maison</th>
@@ -298,20 +394,37 @@ class UI {
                 <th>Type</th>
                 <th>Surface</th>
                 <th>Surface utile</th>
+                <th>Etat</th>
             </tr>
             <tr>
-                <td>${aptData.house_hash}</td>
+                <td class="tiny-text">${aptData.house_code}</td>
                 <td>${aptData.bloc_id}</td>
                 <td>${aptData.floor_nb}</td>
                 <td>${aptData.apt_label}</td>
                 <td>${aptData.apt_type}</td>
                 <td>${aptData.surface}</td>
-                <td>${aptData.surface_real}</td>
+                <td>${aptData.surface_real}</td>`;
+
+        if (!aptData.client_id) {
+            table += `
+                <td id="${this.transaction_actionCell_id}">
+                    <span ${this.transaction_reserveHouse_attr} class="clickable-text">Libre</span>
+                </td>`;
+        } else {
+            table += `
+                <td id="${this.transaction_actionCell_id}">
+                    <span ${this.transaction_freeHouse_attr} class="clickable-text">Reservé</span>
+                </td>`;
+        }
+
+        table += `
             </tr>
         </table>
         `;
 
-        searchApt_result_div.innerHTML = table;
+        searchHouse_result_div.innerHTML = table;
+
+        return Promise.resolve("add eventListeners");
     }
 
     displayFreeHouses(freeAptsData) {
@@ -333,7 +446,7 @@ class UI {
         freeAptsData.forEach((house) => {
             table += `
             <tr>
-                <td class="tiny-text">${house.house_hash}</td>
+                <td class="tiny-text">${house.house_code}</td>
                 <td>${house.bloc_id}</td>
                 <td class="bold">${house.floor_nb}</td>
                 <td class="bold">${house.apt_label}</td>
@@ -440,6 +553,16 @@ class UI {
         menuTarget.classList.add("aside-focused-href");
         menuTarget.parentElement.classList.add("aside-focused-section");
     }
+
+    /**
+     *
+     * @param {HTMLDivElement} overlay
+     */
+    hideOverlayEventListener(overlay) {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.classList.add("hidden");
+        });
+    }
 }
 
 class FormSubmitter {
@@ -448,11 +571,11 @@ class FormSubmitter {
     }
 
     insBloc_submit(formData, submitBtn) {
-        this.submit(formData, "/apis/insert_block", submitBtn);
+        this.submit(formData, "/Apis_blocks/insert_block", submitBtn);
     }
 
     insApts_submit(formData, submitBtn) {
-        this.submit(formData, "/apis/insert_apts", submitBtn);
+        this.submit(formData, "/Apis_blocks/insert_apts", submitBtn);
     }
 
     submit(formData, api, submitBtn) {
@@ -468,6 +591,22 @@ class FormSubmitter {
             .catch((err) => {
                 throw err;
             });
+    }
+
+    async insNewClient(formData) {
+        const res = await fetch(`${this.baseUrl}/Apis_blocks/insert_client`, {
+            method: "post",
+            body: formData,
+        });
+        return await res.json();
+    }
+
+    async newDeal(formData) {
+        const res = await fetch(`${this.baseUrl}/Apis_transactions/new_deal`, {
+            method: "post",
+            body: formData,
+        });
+        return await res.json();
     }
 
     /**
@@ -495,24 +634,23 @@ class Fetcher {
         this.baseUrl = location.origin;
     }
 
-    getBlocs() {
-        return fetch(`${this.baseUrl}/apis/get_blocs`).then((res) =>
-            res.json()
-        );
+    async getBlocs() {
+        const res = await fetch(`${this.baseUrl}/Apis_blocks/get_blocs`);
+        return await res.json();
     }
 
-    getFreeHouses() {
-        return fetch(`${this.baseUrl}/apis/get_free_houses`).then((res) =>
-            res.json()
-        );
+    async getFreeHouses() {
+        const res = await fetch(`${this.baseUrl}/Apis_blocks/get_free_houses`);
+        return await res.json();
     }
 
-    getApt(formData) {
+    async getHouse(formData) {
         const aptLabel = formData.get("apt_label");
         const floorNb = formData.get("floor_nb");
-        return fetch(
-            `${this.baseUrl}/apis/search_apt/${aptLabel}/${floorNb}`
-        ).then((res) => res.json());
+        const res = await fetch(
+            `${this.baseUrl}/Apis_blocks/search_house/${aptLabel}/${floorNb}`
+        );
+        return await res.json();
     }
 
     /**
@@ -556,6 +694,8 @@ const ui = new UI(
 const fetcher = new Fetcher();
 const formSubmitter = new FormSubmitter();
 
+const state = {};
+
 const reportAll = true;
 
 ui.appendReportDivToggler().then(reportDivToggler_eventListener);
@@ -576,8 +716,9 @@ function locationChanges() {
 
     ui.highlightasideMenuLocation(hash);
 
-    if (hash === "#srch-apt") {
-        ui.searchApt().then(searchApt_eventListeners);
+    if (hash === "#transaction") {
+        ui.transaction();
+        ui.searchHouse().then(searchHouse_eventListeners);
     } else if (hash === "#list-apt-free") {
         fetcher
             .getFreeHouses()
@@ -659,24 +800,27 @@ function insApts_eventListeners() {
     });
 }
 
-function searchApt_eventListeners() {
-    const searchApt_form = document.getElementById(ui.searchApt_form_id);
+function searchHouse_eventListeners() {
+    const searchHouse_form = document.getElementById(ui.searchHouse_form_id);
 
-    searchApt_form.addEventListener("submit", (e) => {
+    searchHouse_form.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        const searchBtn = document.getElementById(ui.searchApt_submitBtn_id);
+        const searchBtn = document.getElementById(ui.searchHouse_submitBtn_id);
         searchBtn.style.display = "none";
 
         fetcher
-            .getApt(new FormData(searchApt_form))
+            .getHouse(new FormData(searchHouse_form))
             .then((json) => {
-                document.getElementById(ui.searchApt_resultDiv_id).innerHTML =
+                document.getElementById(ui.searchHouse_resultDiv_id).innerHTML =
                     "";
                 searchBtn.style.display = "block";
 
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
-                    ui.searchApt_displayResult(json.CONTENT);
+                    state.house_code = json.CONTENT.house_code;
+                    ui.searchHouse_displayResult(json.CONTENT).then(
+                        transaction_eventListeners
+                    );
                 } else if (json.REPORT === "NOTICE") {
                     ui.appendReportDiv(json);
                 } else if (reportAll) {
@@ -685,6 +829,90 @@ function searchApt_eventListeners() {
                     console.warn("Unexpected response");
                 }
             })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
+
+function transaction_eventListeners() {
+    const actionCell = document.getElementById(ui.transaction_actionCell_id);
+    const transaction_formsOverlay = document.getElementById(
+        ui.transaction_formsOverlay_id
+    );
+    const transaction_reserveForm = document.getElementById(
+        ui.transaction_reserveForm_id
+    );
+
+    actionCell.addEventListener("click", (e) => {
+        transaction_formsOverlay.classList.remove("hidden");
+        if (e.target.hasAttribute(ui.transaction_freeHouse_attr)) {
+            transaction_reserveForm.classList.add("hidden");
+            console.log("free");
+        } else if (e.target.hasAttribute(ui.transaction_reserveHouse_attr)) {
+            transaction_reserveForm.classList.remove("hidden");
+        }
+    });
+
+    transaction_reserveForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(transaction_reserveForm);
+
+        formSubmitter
+            .insNewClient(formData)
+            .then((json) => {
+                // document.getElementById(ui.searchHouse_resultDiv_id).innerHTML =
+                //     "";
+                // searchBtn.style.display = "block";
+
+                const clientCode = json.CONTENT;
+
+                if (json.REPORT === "SUCCESSFUL_INSERTION") {
+                    return Promise.resolve(clientCode);
+                } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
+                } else if (reportAll) {
+                    ui.appendReportDiv(json);
+                } else {
+                    console.warn("Unexpected response");
+                }
+            })
+            .then((clientCode) => {
+                console.log(clientCode);
+
+                const newDeal_formData = new FormData();
+                newDeal_formData.append("client_code", clientCode);
+                newDeal_formData.append("house_code", state.house_code);
+                newDeal_formData.append("payment", formData.get("payment"));
+                newDeal_formData.append(
+                    "payment_chars",
+                    formData.get("payment_chars")
+                );
+                newDeal_formData.append(
+                    "payment_type",
+                    formData.get("payment_type")
+                );
+
+                return formSubmitter.newDeal(newDeal_formData);
+            })
+            .then((firstTransaction) => {
+                if (firstTransaction.REPORT === "SUCCESSFUL_INSERTION") {
+                    const transactionId =
+                        firstTransaction.CONTENT.transaction_id;
+
+                    const pdfLink = document.createElement("span");
+                    pdfLink.innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text">Ordre de versement</a>`;
+                    transaction_reserveForm.appendChild(pdfLink);
+                } else if (firstTransaction.REPORT === "ERROR") {
+                    ui.appendReportDiv(firstTransaction);
+                } else if (reportAll) {
+                    ui.appendReportDiv(firstTransaction);
+                } else {
+                    console.warn("Unexpected response");
+                }
+            })
+
             .catch((err) => {
                 console.error(err);
             });

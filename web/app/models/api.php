@@ -16,7 +16,7 @@ class Api extends Database
         if (!ValidationBlock::bloc($bloc_id)) {
             return Utility::create_report('INVALID_DATA', "Tag du bloc $bloc_id est invalid! FORME VALIDE: [A-Z][0-9]");
         }
-        if (!ValidationBlock::floors_nb($bloc_floor_nb)) {
+        if (!ValidationBlock::floors_nb($bloc_floors_nb)) {
             return Utility::create_report('INVALID_DATA', "Nombre d'étages $bloc_floors_nb n'est pas dans l'interval [5-20]");
         }
 
@@ -101,7 +101,7 @@ class Api extends Database
 
         $floors_checker = range(1, $bloc_floor_nb);
 
-        $query = 'INSERT INTO houses(floor_nb, apt_label, surface, surface_real, house_hash) VALUES';
+        $query = 'INSERT INTO houses(floor_nb, apt_label, surface, surface_real, house_code) VALUES';
 
         // VALIDATION + missing data check in some way ?
         foreach ($apts_data['floors'] as $floors) {
@@ -196,7 +196,7 @@ class Api extends Database
 
     public function get_free_houses()
     {
-        $query = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_hash, houses.surface, houses.surface_real
+        $query = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real
             FROM houses
             JOIN apts
             ON houses.apt_label = apts.apt_label
@@ -220,16 +220,20 @@ class Api extends Database
 
     }
 
-    public function search_apt($apt_label, $floor_nb)
+    public function search_house($apt_label, $floor_nb)
     {
         if (!ValidationBlock::apt($apt_label)) {
             return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $[A-Z][0-9]-[1-8]");
         }
 
-        $query2 = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_hash, houses.surface, houses.surface_real
+        $query2 = "SELECT apts.bloc_id, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real, clients.client_id
             FROM houses
             JOIN apts
             ON houses.apt_label = apts.apt_label
+            LEFT JOIN deals
+            ON houses.house_id = deals.house_id
+            LEFT JOIN clients
+            ON deals.client_id = clients.client_id
             WHERE houses.apt_label =:apt_label AND houses.floor_nb = :floor_nb";
 
         try {
@@ -251,5 +255,44 @@ class Api extends Database
             return Utility::create_report('ERROR', $e->getMessage());
         }
 
+    }
+
+    public function insert_client(array $client_data): array
+    {
+        $client_code = md5($client_data['client_cni_number']);
+        try {
+            $query1 = 'INSERT INTO clients(client_code, client_lname, client_fname, client_phone, client_email, client_father_fname, client_mother_name, client_birthday, client_birthplace, client_marital_status, client_profession, client_income, client_cni_number, client_cni_date)
+            VALUES(:client_code, :client_lname, :client_fname, :client_phone, :client_email, :client_father_fname, :client_mother_name, :client_birthday, :client_birthplace, :client_marital_status, :client_profession, :client_income, :client_cni_number, :client_cni_date)';
+
+            $client = $this->Insertor->prepare($query1);
+            $client->bindParam(':client_code', $client_code, PDO::PARAM_STR);
+            $client->bindParam(':client_lname', $client_data['client_lname'], PDO::PARAM_STR);
+            $client->bindParam(':client_fname', $client_data['client_fname'], PDO::PARAM_STR);
+            $client->bindParam(':client_phone', $client_data['client_phone'], PDO::PARAM_STR);
+            $client->bindParam(':client_email', $client_data['client_email'], PDO::PARAM_STR);
+            $client->bindParam(':client_father_fname', $client_data['client_father_fname'], PDO::PARAM_STR);
+            $client->bindParam(':client_mother_name', $client_data['client_mother_name'], PDO::PARAM_STR);
+            $client->bindParam(':client_birthday', $client_data['client_birthday'], PDO::PARAM_STR);
+            $client->bindParam(':client_birthplace', $client_data['client_birthplace'], PDO::PARAM_STR);
+            $client->bindParam(':client_marital_status', $client_data['client_marital_status'], PDO::PARAM_STR);
+            $client->bindParam(':client_profession', $client_data['client_profession'], PDO::PARAM_STR);
+            $client->bindParam(':client_income', $client_data['client_income'], PDO::PARAM_INT);
+            $client->bindParam(':client_cni_number', $client_data['client_cni_number'], PDO::PARAM_STR);
+            $client->bindParam(':client_cni_date', $client_data['client_cni_date'], PDO::PARAM_STR);
+
+            if ($client->execute()) {
+
+                return Utility::create_report('SUCCESSFUL_INSERTION', $client_code);
+
+            }
+        } catch (PDOException $e) {
+            if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '.*' for key 'clients\..*'/", $e->getMessage())) {
+                return [
+                    "REPORT" => "ERROR",
+                    "CONTENT" => "donnée client dupliqué",
+                ];
+            }
+            return Utility::create_report('ERROR', $e->getMessage());
+        }
     }
 }
