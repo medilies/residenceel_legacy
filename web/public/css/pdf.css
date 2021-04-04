@@ -11,6 +11,10 @@ div {
     font-size: 14px;
 }
 
+img {
+    margin-bottom: 0;
+}
+
 footer {
     position: absolute;
     bottom: 72px;
@@ -44,6 +48,15 @@ footer {
 .bold {
     font-weight: bold;
 }
+.text12 {
+    font-size: 12px;
+}
+.u {
+    text-decoration: underline;
+}
+.white-space {
+    color: #fff;
+}
 
 .pdf-page {
     width: 90%;
@@ -58,6 +71,9 @@ footer {
     color: #fff;
 }
 
+.inline-b {
+    display: inline-block;
+}
 .flex {
     display: flex;
     justify-content: space-between;
@@ -75,11 +91,39 @@ footer {
     margin-left: auto;
 }
 
+.pl50 {
+    padding-left: 50px;
+}
+
+.m0 {
+    margin: 0;
+}
+.mt9 {
+    margin-top: 9px;
+}
+.mb18 {
+    margin-bottom: 18px;
+}
 .mb36 {
     margin-bottom: 36px;
 }
+.mt36 {
+    margin-top: 36px;
+}
 .mb72 {
     margin-bottom: 72px;
+}
+.mb100 {
+    margin-bottom: 100px;
+}
+.mb120 {
+    margin-bottom: 120px;
+}
+.mb150 {
+    margin-bottom: 150px;
+}
+.mb200 {
+    margin-bottom: 200px;
 }
 .mb300 {
     margin-bottom: 300px;

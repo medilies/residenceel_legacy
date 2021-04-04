@@ -2,13 +2,8 @@
 
 <div class="pdf-page">
 
-    <header class="rel">
-        <div class="logo abs"></div>
-        <div class="bg-b white center">
-            <p class="header4">SOCIETE DE PROMOTION IMMOBILIERE</p>
-            <p class="header1">CIMM OUEST</p>
-        </div>
-        <div class="qr abs"></div>
+    <header class="rel bg- ">
+        <img src='<?=PROJECT_ROOT . "/public/assets/img/pdf_header.png"?>'>
     </header>
 
     <?=$pdf_body?>

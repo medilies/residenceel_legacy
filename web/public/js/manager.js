@@ -274,7 +274,7 @@ class UI {
 
         document.body.appendChild(transaction_formsOverlay);
 
-        return Promise.resolve("go");
+        return Promise.resolve("add event listeners");
     }
 
     /**
@@ -282,12 +282,17 @@ class UI {
      * @param {HTMLDivElement} container
      */
     transaction_appendReserveForm(container) {
-        const transaction_reserveForm_div = document.createElement("div");
-        this.transaction_reserveForm_id = "transaction_reserveForm";
-        transaction_reserveForm_div.classList.add("bg-w", "p1", "center-xy");
+        this.transaction_reserveFormsContainer_id =
+            "transaction_reserveFormsContainer";
+        this.transaction_reserveToNewClientForm_id =
+            "transaction_reserveToNewClientForm";
+        this.transaction_reserveToExistantClientForm_id =
+            "transaction_reserveToExistantClientForm";
 
-        transaction_reserveForm_div.innerHTML = `
-            <form id="${this.transaction_reserveForm_id}" class="hidden flex">
+        const transaction_reserveForm_div = `
+        <div class="bg-w p1 center-xy">
+        <div id="${this.transaction_reserveFormsContainer_id}" class="hidden flex">
+            <form id="${this.transaction_reserveToNewClientForm_id}" class="flex">
             <div>
                 <label for="client_lname">Nom</label>
                 <input name="client_lname" type="text" required >
@@ -296,7 +301,7 @@ class UI {
                 <input name="client_fname" type="text" required >
 
                 <label for="client_birthday">Date de naissance</label>
-                <input name="client_birthday" type="date">
+                <input name="client_birthday" type="date" required>
 
                 <label for="client_birthplace">Lieu de naissance</label>
                 <input name="client_birthplace" type="text">
@@ -312,6 +317,9 @@ class UI {
 
                 <label for="client_cni_date">CNI délivré le</label>
                 <input name="client_cni_date" type="date">
+
+                <label for="client_address">Adresse</label>
+                <input name="client_address" type="text" required >
             </div>
             <div>
                 <label for="client_phone">Telephone</label>
@@ -321,7 +329,7 @@ class UI {
                 <input name="client_email" type="email" required>
 
                 <label for="client_marital_status">Etat civil</label>
-                <input name="client_marital_status" type="text">
+                <input name="client_marital_status" type="text" required>
                 
                 <label for="client_profession">Profession</label>
                 <input name="client_profession" type="text">
@@ -329,10 +337,10 @@ class UI {
                 <label for="client_income">Revenu</label>
                 <input name="client_income" type="text">
                 
-                <label for="payment">Payement</label>
+                <label for="payment">Montant</label>
                 <input name="payment" type="number" required>
 
-                <label for="payment_chars">Payement en lettre</label>
+                <label for="payment_chars">Montant en lettre</label>
                 <input name="payment_chars" type="text">
 
                 <label for="payment_type">Cache</label>
@@ -340,11 +348,58 @@ class UI {
                 <label for"=payment_type">Bank</label>
                 <input name="payment_type" type="radio" value="bank" required/>
 
-                <button type="submit" class="inline wp1 btn add-btn">Enregistrer client + accord</button>
+                <button type="submit" class="inline wp1 btn add-btn">Nouveau client + accord</button>
             </div>
-            </form>`;
+            </form>
+            <hr>
+            <form id="${this.transaction_reserveToExistantClientForm_id}">
+                <label for="client_identifier_key">Clé</label>
+                <select name="client_identifier_key">
+                    <option value="client_cni_number">CNI n°</option>
+                </select>
 
-        container.appendChild(transaction_reserveForm_div);
+                <label for="client_identifier_value">Valeur</label>
+                <input name="client_identifier_value" type="text" required/>
+
+                <label for="payment">Montant</label>
+                <input name="payment" type="number" required>
+
+                <label for="payment_chars">Montant en lettre</label>
+                <input name="payment_chars" type="text">
+
+                <label for="payment_type">Cache</label>
+                <input name="payment_type" type="radio" value="cache" required/>
+                <label for"=payment_type">Bank</label>
+                <input name="payment_type" type="radio" value="bank" required/>
+
+                <button type="submit" class="inline wp1 btn add-btn">Accord</button>
+            </form>
+        </div>
+        </div>
+        `;
+
+        container.innerHTML = transaction_reserveForm_div;
+    }
+
+    transaction_confirmTransactionForm(transactionId, aptLabel, floorNb) {
+        // const transaction_confirmTransactionFormContainer = document.createElement(
+        //     "div"
+        // );
+
+        this.transaction_confirmTransactionForm_attr =
+            "transaction_confirmTransactionForm";
+
+        const transaction_confirmTransactionFormContainer = `
+            <form ${this.transaction_confirmTransactionForm_attr}>
+                <input type="hidden" name="transaction_id" value="${transactionId}"/>
+                <input type="hidden" name="apt_label" value="${aptLabel}"/>
+                <input type="hidden" name="floor_nb" value="${floorNb}"/>
+                <input type="password" name="pwd"  autocomplete />
+                <button type="submit">Confirmer</button>
+            </form>
+        `;
+
+        return transaction_confirmTransactionFormContainer;
     }
 
     searchHouse() {
@@ -387,8 +442,8 @@ class UI {
         let table = `
         <table>
             <tr>
-                <th>ID maison</th>
                 <th>Bloc</th>
+                <th>Numéro</th>
                 <th>Etage</th>
                 <th>Tag maison</th>
                 <th>Type</th>
@@ -397,8 +452,8 @@ class UI {
                 <th>Etat</th>
             </tr>
             <tr>
-                <td class="tiny-text">${aptData.house_code}</td>
                 <td>${aptData.bloc_id}</td>
+                <td>${aptData.door_number}</td>
                 <td>${aptData.floor_nb}</td>
                 <td>${aptData.apt_label}</td>
                 <td>${aptData.apt_type}</td>
@@ -424,7 +479,91 @@ class UI {
 
         searchHouse_result_div.innerHTML = table;
 
+        return Promise.resolve("add event lsitener to actoin cell");
+    }
+
+    searchClient() {
+        const searchClient_div = document.createElement("div");
+
+        this.searchClient_form_id = "searchClient";
+        this.searchClient_submitBtn_id = "searchClient-submit-btn";
+        this.searchClient_resultDiv_id = "searchClient-result";
+
+        searchClient_div.innerHTML = `
+        <form id="${this.searchClient_form_id}">
+
+            <label for="client_identifier_key">Clé</label>
+            <select name="client_identifier_key">
+                <option value="client_cni_number">CNI n°</option>
+            </select>
+
+            <label for="client_identifier_value">Valeur</label>
+            <input name="client_identifier_value" type="text" required/>
+
+            <button type="submit" id="${this.searchClient_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Transactions</button>
+
+        </form>
+
+        <div id='${this.searchClient_resultDiv_id}'></div>
+        `;
+
+        this.formsContainer.appendChild(searchClient_div);
+
         return Promise.resolve("add eventListeners");
+    }
+
+    searchClient_displayResult(clientTransactions) {
+        const searchClient_resultDiv = document.getElementById(
+            this.searchClient_resultDiv_id
+        );
+
+        let table = `
+            <table>
+                <caption>Transactions</caption>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prenom</th>
+                    <th>Apartement</th>
+                    <th>Etage</th>
+                    <th>Fait le</th>
+                    <th>Montant</th>
+                    <th>Montant en lettres</th>
+                    <th>Payé par</th>
+                    <th>Confirmation</th>
+                </tr>
+            `;
+        clientTransactions.forEach((transaction) => {
+            table += `
+                <tr>
+                    <td>${transaction.client_lname}</td>
+                    <td>${transaction.client_fname}</td>
+                    <td>${transaction.apt_label}</td>
+                    <td>${transaction.floor_nb}</td>
+                    <td>${transaction.transaction_date}</td>
+                    <td>${transaction.payment}</td>
+                    <td>${transaction.payment_chars}</td>
+                    <td>${transaction.payment_type}</td>
+                `;
+            if (transaction.payment_confirmed === "0") {
+                table += `
+                    <td>${ui.transaction_confirmTransactionForm(
+                        transaction.transaction_id,
+                        transaction.apt_label,
+                        transaction.floor_nb
+                    )}</td>
+                </tr>
+                `;
+            } else if (transaction.payment_confirmed === "1") {
+                table += `
+                    <td>Confirmé</td>
+                </tr>
+                `;
+            }
+        });
+        table += "</table>";
+        searchClient_resultDiv.innerHTML = table;
+
+        return Promise.resolve("cofirmation event listener");
     }
 
     displayFreeHouses(freeAptsData) {
@@ -434,8 +573,8 @@ class UI {
         <table>
             <caption>La liste des maisons libres</caption>
             <tr>
-                <th>ID maison</th>
                 <th>Bloc</th>
+                <th>Numéro</th>
                 <th>Etage</th>
                 <th>Tag maison</th>
                 <th>Type</th>
@@ -446,8 +585,8 @@ class UI {
         freeAptsData.forEach((house) => {
             table += `
             <tr>
-                <td class="tiny-text">${house.house_code}</td>
                 <td>${house.bloc_id}</td>
+                <td>${house.door_number}</td>
                 <td class="bold">${house.floor_nb}</td>
                 <td class="bold">${house.apt_label}</td>
                 <td>${house.apt_type}</td>
@@ -609,6 +748,17 @@ class FormSubmitter {
         return await res.json();
     }
 
+    async confirmTransaction(formData) {
+        const res = await fetch(
+            `${this.baseUrl}/Apis_transactions/confirm_transaction`,
+            {
+                method: "post",
+                body: formData,
+            }
+        );
+        return await res.json();
+    }
+
     /**
      * Display servers' answer and:
      * - Refresh the page if the submission was successful
@@ -649,6 +799,15 @@ class Fetcher {
         const floorNb = formData.get("floor_nb");
         const res = await fetch(
             `${this.baseUrl}/Apis_blocks/search_house/${aptLabel}/${floorNb}`
+        );
+        return await res.json();
+    }
+
+    async getClientDeals(formData) {
+        const key = formData.get("client_identifier_key");
+        const value = formData.get("client_identifier_value");
+        const res = await fetch(
+            `${this.baseUrl}/Apis_transactions/get_client_deals/${key}/${value}`
         );
         return await res.json();
     }
@@ -716,9 +875,11 @@ function locationChanges() {
 
     ui.highlightasideMenuLocation(hash);
 
-    if (hash === "#transaction") {
-        ui.transaction();
+    if (hash === "#init-deal") {
+        ui.transaction().then(transaction_eventListeners);
         ui.searchHouse().then(searchHouse_eventListeners);
+    } else if (hash === "#client-transactions") {
+        ui.searchClient().then(searchClient_eventListeners);
     } else if (hash === "#list-apt-free") {
         fetcher
             .getFreeHouses()
@@ -818,9 +979,34 @@ function searchHouse_eventListeners() {
 
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     state.house_code = json.CONTENT.house_code;
-                    ui.searchHouse_displayResult(json.CONTENT).then(
-                        transaction_eventListeners
-                    );
+                    ui.searchHouse_displayResult(json.CONTENT).then(() => {
+                        const actionCell = document.getElementById(
+                            ui.transaction_actionCell_id
+                        );
+
+                        actionCell.addEventListener("click", (e) => {
+                            transaction_formsOverlay.classList.remove("hidden");
+                            if (
+                                e.target.hasAttribute(
+                                    ui.transaction_freeHouse_attr
+                                )
+                            ) {
+                                transaction_reserveFormsContainer.classList.add(
+                                    "hidden"
+                                );
+                                console.log("reserved");
+                            } else if (
+                                e.target.hasAttribute(
+                                    ui.transaction_reserveHouse_attr
+                                )
+                            ) {
+                                transaction_reserveFormsContainer.classList.remove(
+                                    "hidden"
+                                );
+                                console.log("free");
+                            }
+                        });
+                    });
                 } else if (json.REPORT === "NOTICE") {
                     ui.appendReportDiv(json);
                 } else if (reportAll) {
@@ -836,28 +1022,23 @@ function searchHouse_eventListeners() {
 }
 
 function transaction_eventListeners() {
-    const actionCell = document.getElementById(ui.transaction_actionCell_id);
     const transaction_formsOverlay = document.getElementById(
         ui.transaction_formsOverlay_id
     );
-    const transaction_reserveForm = document.getElementById(
-        ui.transaction_reserveForm_id
+    const transaction_reserveFormsContainer = document.getElementById(
+        ui.transaction_reserveFormsContainer_id
+    );
+    const transaction_reserveToNewClientForm = document.getElementById(
+        ui.transaction_reserveToNewClientForm_id
+    );
+    const transaction_reserveToExistantClientForm = document.getElementById(
+        ui.transaction_reserveToExistantClientForm_id
     );
 
-    actionCell.addEventListener("click", (e) => {
-        transaction_formsOverlay.classList.remove("hidden");
-        if (e.target.hasAttribute(ui.transaction_freeHouse_attr)) {
-            transaction_reserveForm.classList.add("hidden");
-            console.log("free");
-        } else if (e.target.hasAttribute(ui.transaction_reserveHouse_attr)) {
-            transaction_reserveForm.classList.remove("hidden");
-        }
-    });
-
-    transaction_reserveForm.addEventListener("submit", (e) => {
+    transaction_reserveToNewClientForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        const formData = new FormData(transaction_reserveForm);
+        const formData = new FormData(transaction_reserveToNewClientForm);
 
         formSubmitter
             .insNewClient(formData)
@@ -866,10 +1047,10 @@ function transaction_eventListeners() {
                 //     "";
                 // searchBtn.style.display = "block";
 
-                const clientCode = json.CONTENT;
+                const clientCniNumber = json.CONTENT;
 
                 if (json.REPORT === "SUCCESSFUL_INSERTION") {
-                    return Promise.resolve(clientCode);
+                    return Promise.resolve(clientCniNumber);
                 } else if (json.REPORT === "NOTICE") {
                     ui.appendReportDiv(json);
                 } else if (reportAll) {
@@ -878,11 +1059,18 @@ function transaction_eventListeners() {
                     console.warn("Unexpected response");
                 }
             })
-            .then((clientCode) => {
-                console.log(clientCode);
+            .then((clientCniNumber) => {
+                console.log(clientCniNumber);
 
                 const newDeal_formData = new FormData();
-                newDeal_formData.append("client_code", clientCode);
+                newDeal_formData.append(
+                    "client_identifier_key",
+                    "client_cni_number"
+                );
+                newDeal_formData.append(
+                    "client_identifier_value",
+                    clientCniNumber
+                );
                 newDeal_formData.append("house_code", state.house_code);
                 newDeal_formData.append("payment", formData.get("payment"));
                 newDeal_formData.append(
@@ -896,26 +1084,102 @@ function transaction_eventListeners() {
 
                 return formSubmitter.newDeal(newDeal_formData);
             })
-            .then((firstTransaction) => {
-                if (firstTransaction.REPORT === "SUCCESSFUL_INSERTION") {
-                    const transactionId =
-                        firstTransaction.CONTENT.transaction_id;
+            .then(transaction_newDealResult)
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+    transaction_reserveToExistantClientForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-                    const pdfLink = document.createElement("span");
-                    pdfLink.innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text">Ordre de versement</a>`;
-                    transaction_reserveForm.appendChild(pdfLink);
-                } else if (firstTransaction.REPORT === "ERROR") {
-                    ui.appendReportDiv(firstTransaction);
+        const formData = new FormData(transaction_reserveToExistantClientForm);
+        formData.append("house_code", state.house_code);
+
+        formSubmitter.newDeal(formData).then(transaction_newDealResult);
+    });
+}
+
+function transaction_newDealResult(firstTransaction) {
+    if (firstTransaction.REPORT === "SUCCESSFUL_INSERTION") {
+        const transactionId = firstTransaction.CONTENT.transaction_id;
+
+        const report = {
+            REPORT: "SUCCESSFUL_INSERTION",
+            CONTENT: `La transaction ${transactionId} est enregistré avec succes`,
+        };
+        ui.appendReportDiv(report);
+
+        const pdfLink = document.createElement("span");
+        pdfLink.innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text">Ordre de versement</a>`;
+        transaction_reserveFormsContainer.appendChild(pdfLink);
+    } else if (firstTransaction.REPORT === "ERROR") {
+        ui.appendReportDiv(firstTransaction);
+    } else if (reportAll) {
+        ui.appendReportDiv(firstTransaction);
+    } else {
+        console.warn("Unexpected response");
+    }
+}
+
+function searchClient_eventListeners() {
+    const searchClient_form = document.getElementById(ui.searchClient_form_id);
+
+    searchClient_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const searchBtn = document.getElementById(ui.searchClient_submitBtn_id);
+        searchBtn.style.display = "none";
+
+        fetcher
+            .getClientDeals(new FormData(searchClient_form))
+            .then((json) => {
+                document.getElementById(
+                    ui.searchClient_resultDiv_id
+                ).innerHTML = "";
+                searchBtn.style.display = "block";
+
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    state.house_code = json.CONTENT.house_code;
+                    ui.searchClient_displayResult(json.CONTENT);
+                } else if (json.REPORT === "NOTICE") {
+                    ui.appendReportDiv(json);
                 } else if (reportAll) {
-                    ui.appendReportDiv(firstTransaction);
+                    ui.appendReportDiv(json);
                 } else {
                     console.warn("Unexpected response");
                 }
             })
-
+            .then(transaction_confirmTransaction_eventLitener)
             .catch((err) => {
                 console.error(err);
             });
+    });
+}
+
+function transaction_confirmTransaction_eventLitener() {
+    const transaction_confirmation_forms = document.querySelectorAll(
+        `[${ui.transaction_confirmTransactionForm_attr}]`
+    );
+
+    transaction_confirmation_forms.forEach((transaction_confirmation_form) => {
+        transaction_confirmation_form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(transaction_confirmation_form);
+
+            formSubmitter.confirmTransaction(formData).then((json) => {
+                if (
+                    json.REPORT === "SUCCESSFUL_FETCH" &&
+                    Number.isInteger(json.CONTENT)
+                ) {
+                    e.target.parentElement.innerHTML = `
+                    <a href='${location.origin}/Apis_pdf/versement/${json.CONTENT}' target='_blank' class="clickable-text">RECU DE VERSEMENT</a>
+                    <br>
+                    <a href='${location.origin}/Apis_pdf/reservation/${json.CONTENT}' target='_blank' class="clickable-text">CONTRAT DE RESERVATION</a>
+                    `;
+                }
+            });
+        });
     });
 }
 

@@ -3,11 +3,11 @@
     <aside class="pt1">
 
         <div class="pl1">
-            <a class="header5 aside-href " href="#transaction" aside-href><i class="fas fa-handshake"></i> Nouveau accord</a>
+            <a class="header5 aside-href " href="#init-deal" aside-href><i class="fas fa-handshake"></i> Nouveau accord</a>
         </div>
 
         <div class="pl1">
-            <a class="header5 aside-href " href="#srch-client" aside-href><i class="fas fa-house-user"></i> Client et transactions</a>
+            <a class="header5 aside-href " href="#client-transactions" aside-href><i class="fas fa-house-user"></i> Client et transactions</a>
         </div>
 
         <div class="pl1">
@@ -21,7 +21,6 @@
             <p class="header5"><i class="fas fa-check-square"></i> Enregistrer <i class="fas fa-chevron-down body-text"></i></p>
             <a class="header5 aside-href ml1" href="#ins-bloc" aside-href>Nouveau bloc</a>
             <a class="header5 aside-href ml1" href="#ins-apt" aside-href>Nouvelles maisons</a>
-            <a class="header5 aside-href ml1" href="#client" aside-href>Nouveau client</a>
         </div>
 
     </aside>

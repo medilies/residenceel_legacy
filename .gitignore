@@ -1,1 +1,3 @@
 /web/app/vendor
+/web/app/phpqrcode
+/web/public/assets/img/qr_codes

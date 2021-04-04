@@ -18,6 +18,7 @@ CREATE TABLE houses(
     house_code VARCHAR(32) UNIQUE NOT NULL,
     apt_label VARCHAR(6) NOT NULL,
     floor_nb INTEGER NOT NULL,
+    door_number INTEGER NOT NULL,
     surface FLOAT NOT NULL,
     surface_real FLOAT NOT NULL,
     FOREIGN KEY (apt_label) REFERENCES apts(apt_label) on DELETE CASCADE,
@@ -26,7 +27,6 @@ CREATE TABLE houses(
 
 CREATE TABLE clients(
     client_id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    client_code VARCHAR(32) UNIQUE NOT NULL,
     client_fname VARCHAR(50) NOT NULL,
     client_lname VARCHAR(50) NOT NULL,
     client_cni_number VARCHAR(20) NOT NULL,
@@ -39,7 +39,8 @@ CREATE TABLE clients(
     client_profession VARCHAR(35),
     client_income INTEGER,
     client_phone VARCHAR(15) UNIQUE NOT NULL,
-    client_email VARCHAR(80) UNIQUE NOT NULL
+    client_email VARCHAR(80) UNIQUE NOT NULL,
+    client_address VARCHAR(150) NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE deals(
@@ -47,6 +48,7 @@ CREATE TABLE deals(
     house_id INTEGER UNIQUE,
     client_id INTEGER,
     deal_code VARCHAR(32) UNIQUE NOT NULL,
+    deal_confirmed TINYINT DEFAULT 0,
     total_payed INTEGER DEFAULT 0,
     deal_details VARCHAR(30),
     FOREIGN KEY (house_id) REFERENCES houses(house_id) on DELETE CASCADE,
