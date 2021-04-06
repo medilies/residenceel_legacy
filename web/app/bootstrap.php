@@ -9,6 +9,6 @@ spl_autoload_register(function ($class_name) {
     } elseif (file_exists(PROJECT_ROOT . '/app/helpers/' . $class_name . '.php')) {
         require_once PROJECT_ROOT . '/app/helpers/' . $class_name . '.php';
     } elseif ($class_name === 'QRcode') {
-        require_once PROJECT_ROOT . '/app/phpqrcode/qrlib.php';
+        require_once PROJECT_ROOT . '/app/vendor/phpqrcode/qrlib.php';
     }
 });

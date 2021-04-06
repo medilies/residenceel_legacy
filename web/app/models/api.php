@@ -260,37 +260,36 @@ class Api extends Database
 
     public function insert_client(array $client_data): array
     {
-        try {
-            $query1 = 'INSERT INTO clients(client_lname, client_fname, client_phone, client_email, client_address, client_father_fname, client_mother_name, client_birthday, client_birthplace, client_marital_status, client_profession, client_income, client_cni_number, client_cni_date)
+        $query1 = 'INSERT INTO clients(client_lname, client_fname, client_phone, client_email, client_address, client_father_fname, client_mother_name, client_birthday, client_birthplace, client_marital_status, client_profession, client_income, client_cni_number, client_cni_date)
             VALUES(:client_lname, :client_fname, :client_phone, :client_email, :client_address, :client_father_fname, :client_mother_name, :client_birthday, :client_birthplace, :client_marital_status, :client_profession, :client_income, :client_cni_number, :client_cni_date)';
 
+        foreach ($client_data as $key => $value) {
+            $$key = $value;
+        }
+
+        try {
             $client = $this->Insertor->prepare($query1);
-            $client->bindParam(':client_lname', $client_data['client_lname'], PDO::PARAM_STR);
-            $client->bindParam(':client_fname', $client_data['client_fname'], PDO::PARAM_STR);
-            $client->bindParam(':client_phone', $client_data['client_phone'], PDO::PARAM_STR);
-            $client->bindParam(':client_email', $client_data['client_email'], PDO::PARAM_STR);
-            $client->bindParam(':client_address', $client_data['client_address'], PDO::PARAM_STR);
-            $client->bindParam(':client_father_fname', $client_data['client_father_fname'], PDO::PARAM_STR);
-            $client->bindParam(':client_mother_name', $client_data['client_mother_name'], PDO::PARAM_STR);
-            $client->bindParam(':client_birthday', $client_data['client_birthday'], PDO::PARAM_STR);
-            $client->bindParam(':client_birthplace', $client_data['client_birthplace'], PDO::PARAM_STR);
-            $client->bindParam(':client_marital_status', $client_data['client_marital_status'], PDO::PARAM_STR);
-            $client->bindParam(':client_profession', $client_data['client_profession'], PDO::PARAM_STR);
-            $client->bindParam(':client_income', $client_data['client_income'], PDO::PARAM_INT);
-            $client->bindParam(':client_cni_number', $client_data['client_cni_number'], PDO::PARAM_STR);
-            $client->bindParam(':client_cni_date', $client_data['client_cni_date'], PDO::PARAM_STR);
+            $client->bindParam(':client_lname', $client_lname, PDO::PARAM_STR);
+            $client->bindParam(':client_fname', $client_fname, PDO::PARAM_STR);
+            $client->bindParam(':client_phone', $client_phone, PDO::PARAM_STR);
+            $client->bindParam(':client_email', $client_email, PDO::PARAM_STR);
+            $client->bindParam(':client_address', $client_address, PDO::PARAM_STR);
+            $client->bindParam(':client_father_fname', $client_father_fname, PDO::PARAM_STR);
+            $client->bindParam(':client_mother_name', $client_mother_name, PDO::PARAM_STR);
+            $client->bindParam(':client_birthday', $client_birthday, PDO::PARAM_STR);
+            $client->bindParam(':client_birthplace', $client_birthplace, PDO::PARAM_STR);
+            $client->bindParam(':client_marital_status', $client_marital_status, PDO::PARAM_STR);
+            $client->bindParam(':client_profession', $client_profession, PDO::PARAM_STR);
+            $client->bindParam(':client_income', $client_income, PDO::PARAM_INT);
+            $client->bindParam(':client_cni_number', $client_cni_number, PDO::PARAM_STR);
+            $client->bindParam(':client_cni_date', $client_cni_date, PDO::PARAM_STR);
 
             if ($client->execute()) {
-
-                return Utility::create_report('SUCCESSFUL_INSERTION', $client_data['client_cni_number']);
-
+                return Utility::create_report('SUCCESSFUL_INSERTION', $client_cni_number);
             }
         } catch (PDOException $e) {
             if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '.*' for key 'clients\..*'/", $e->getMessage())) {
-                return [
-                    "REPORT" => "ERROR",
-                    "CONTENT" => "donnée client dupliqué",
-                ];
+                return Utility::create_report('ERROR', "Le client $client_lname $client_fname est déja enregistré avec la carte $client_cni_number");
             }
             return Utility::create_report('ERROR', $e->getMessage());
         }

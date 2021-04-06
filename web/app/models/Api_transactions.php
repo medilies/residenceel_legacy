@@ -17,7 +17,8 @@ class Api_transactions extends Database
         $deal_code = md5($client_cni_number . $deal_data['house_code']);
 
         $payment = intval($deal_data['payment']);
-        $payment_chars = $deal_data['payment_chars'];
+        $Int = new NumberFormatter('fr', NumberFormatter::SPELLOUT);
+        $payment_chars = $Int->format($payment);
         $payment_type = $deal_data['payment_type'];
 
         $query1 = "INSERT INTO deals(client_id, house_id, deal_code) VALUES($client_id, $house_id, '$deal_code')";
@@ -53,7 +54,7 @@ class Api_transactions extends Database
             }
         } catch (PDOException $e) {
             if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$deal_code' for key 'deals\.deal_code'/", $e->getMessage())) {
-                return Utility::create_report('NOTICE', "Cette accord est déja enregistré pour le cilent $client_cni_number sous le l'accord $deal_code");
+                return Utility::create_report('NOTICE', "Cette accord est déja enregistré pour le client $client_cni_number sous l'accord $deal_code");
             }
 
             return Utility::create_report('ERROR', $e->getMessage());
@@ -162,11 +163,13 @@ class Api_transactions extends Database
                 $client_cni_number = $client_cni_number->fetch();
                 return $client_cni_number['client_cni_number'];
             } else if ($client_cni_number->rowCount() === 0) {
-                return Utility::create_report('INTERNAL_ERROR', "FAUX CODE client");
+                echo json_encode(Utility::create_report('INTERNAL_ERROR', "Aucun client n'est associé à la clé $value"));
+                die;
             }
 
         } catch (PDOException $e) {
-            return Utility::create_report('ERROR', $e->getMessage());
+            echo json_encode(Utility::create_report('ERROR', $e->getMessage()));
+            die;
         }
     }
 

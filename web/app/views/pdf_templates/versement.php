@@ -1,6 +1,7 @@
 <?php ob_start();?>
 
 <p class="right-text mb36">ORAN LE : <?=$date?></p>
+<div class="mb18"></div>
 <p class="header2">RECU DE VERSEMENT</p>
 <p class="header4 center-text mb72">N° : <?=$transaction_id?></p>
 
@@ -11,7 +12,6 @@
 <p><?=$client_name?> Née le <?=$client_birthday?> à <?=$client_birthplace?> portant la carte national d’identité (CNI) n° : <?=$client_cni_number?> délivrer le : <?=$client_cni_date?></p>
 
 <p>Déclare avoir versé le montant de : <?=$payment?></p>
-<p class="mb36">Le <?=$date?></p>
 
 <img src='<?=$qr_code_file?>' width="100px">
 
@@ -22,7 +22,7 @@
 </p>
 
 
-<div class="mb200"></div>
+<div class="mb250"></div>
 
 
 

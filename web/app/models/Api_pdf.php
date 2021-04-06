@@ -33,7 +33,7 @@ class Api_pdf extends Database
     {
         $transaction_id = intval($transaction_id);
 
-        $query = "SELECT clients.client_fname, clients.client_lname, clients.client_cni_number, clients.client_cni_date, clients.client_birthday, clients.client_birthplace, transactions.payment, transactions.payment_confirmed, deals.deal_code
+        $query = "SELECT clients.client_fname, clients.client_lname, clients.client_cni_number, clients.client_cni_date, clients.client_birthday, clients.client_birthplace, transactions.payment, transactions.payment_confirmed, transactions.payment_type, deals.deal_code
         FROM transactions
         JOIN deals ON transactions.deal_id = deals.deal_id
         JOIN clients ON deals.client_id = clients.client_id

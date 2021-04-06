@@ -49,11 +49,18 @@ class Apis_pdf extends Controller
             die;
         }
 
-        $deal_code = $versement_data['deal_code'];
-        $client_cni_number = $versement_data['client_cni_number'];
-        $qr_code_file = $this->create_qr_code_png($deal_code, $client_cni_number);
+        if ($versement_data['payment_type'] === "bank") {
+            $pdf = "<h1>le payment est effectué par bank<h1>";
 
-        $pdf = $this->create_pdf_content("versement", $versement_data, $transaction_id);
+        } else if ($versement_data['payment_type'] === "cache") {
+
+            $deal_code = $versement_data['deal_code'];
+            $client_cni_number = $versement_data['client_cni_number'];
+            $qr_code_file = $this->create_qr_code_png($deal_code, $client_cni_number);
+
+            $pdf = $this->create_pdf_content("versement", $versement_data, $transaction_id);
+        }
+
         $this->output_pdf($pdf);
     }
 

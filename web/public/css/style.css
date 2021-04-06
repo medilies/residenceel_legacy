@@ -73,6 +73,13 @@ label {
     line-height: var(--header4-line-h);
     margin-bottom: 0.25rem;
 }
+label i {
+    color: var(--primary-color);
+}
+label[required]::after {
+    content: "*";
+    color: red;
+}
 
 button {
     color: #000;
@@ -89,7 +96,7 @@ button:hover {
 
 input,
 select {
-    border: #1167b1 solid 2px;
+    border: var(--primary-color) solid 2px;
 }
 
 input:focus,
@@ -109,7 +116,7 @@ caption {
 }
 
 th {
-    background: #1167b1;
+    background: var(--primary-color4);
     color: #fff;
 }
 
@@ -238,6 +245,9 @@ h5,
 .bolder {
     font-weight: bolder;
 }
+.center-text {
+    text-align: center;
+}
 
 .card {
     padding: 1rem;
@@ -273,6 +283,12 @@ h5,
 .bg-l-grey {
     background: #ddd;
 }
+.bg-ll-grey {
+    background: #eee;
+}
+.bg-lll-grey {
+    background: #e8e8e8;
+}
 .bg-w {
     background: #fff;
 }
@@ -297,11 +313,17 @@ h5,
 .w5 {
     width: 5rem;
 }
+.w9 {
+    width: 9rem;
+}
 .w18 {
     width: 18rem;
 }
 .w21 {
     width: 21rem;
+}
+.w25 {
+    width: 25rem;
 }
 .wp1 {
     width: fit-content;
@@ -344,6 +366,13 @@ h5,
 .pt1 {
     padding-top: 1rem;
 }
+.p2 {
+    padding: 2rem;
+}
+.ph2 {
+    padding-right: 2rem;
+    padding-left: 2rem;
+}
 .pt3 {
     padding-top: 3rem;
 }
@@ -369,6 +398,10 @@ h5,
 }
 .green {
     color: var(--green);
+}
+
+.btr {
+    border-top: red 1px dotted;
 }
 
 .aside-href {
@@ -401,6 +434,15 @@ h5,
 }
 .rm-btn:hover {
     background-color: hsl(3, 100%, 30%);
+    color: #ffff;
+}
+.critical-btn {
+    border-color: hsl(256, 100%, 30%);
+    background: #fff;
+    color: hsl(256, 100%, 30%);
+}
+.critical-btn:hover {
+    background-color: hsl(256, 100%, 30%);
     color: #ffff;
 }
 

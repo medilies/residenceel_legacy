@@ -1,6 +1,7 @@
 <?php ob_start();?>
 
 <p class="right-text mb36">ORAN LE : <?=$date?></p>
+<div class="mb18"></div>
 <p class="header2">ORDRE DE VERSEMENT</p>
 <p class="header4 center-text mb72">N° : <?=$transaction_id?></p>
 

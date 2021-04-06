@@ -36,25 +36,22 @@ class UI {
     insBloc() {
         const insBloc_div = document.createElement("div");
 
-        this.insBloc_form_id = "insBloc";
         this.insBloc_blocIdInput_id = "insBloc-bloc";
-        this.insBloc_addApt_attr = "insBloc_addApt";
-        this.insBloc_rmApt_attr = "insBloc_rmApt";
         this.insBloc_submitBtn_id = "insBloc-submit-btn";
         this.insBloc_aptContainerDiv_id = "insBloc-apt-container";
 
         insBloc_div.innerHTML = `
-            <form id="${this.insBloc_form_id}">
+            <form onsubmit="insBloc_form_submit(event)">
 
-                <label for="bloc_id">Nom du bloc</label>
+                <label for="bloc_id"><i class="fas fa-building"></i> Nom du bloc</label>
                 <input name="bloc_id" id="${this.insBloc_blocIdInput_id}" type="text" placeholder="A1..." required pattern="[a-zA-Z][0-9]?" class="w5 first-input"/>
                 
-                <label for="floors_nb">Nombre des étages</label>
+                <label for="floors_nb"><i class="fas fa-layer-group"></i> Nombre des étages</label>
                 <input name="floors_nb" type="number" min="5" max="20" placeholder="5..." required class="w3"/>
                 
-                <button name="insBloc" type="button" ${this.insBloc_addApt_attr} class="btn add-btn inline wp1"><i class="fas fa-plus-square"></i> Apartement</button>
+                <button type="button" onclick="ui.insBloc_addApt()" class="btn add-btn inline wp1"><i class="fas fa-plus-square"></i> Apartement</button>
 
-                <button type="button" ${this.insBloc_rmApt_attr} class="btn rm-btn wp1 inline"><i class="fas fa-minus-square"></i> Apartement</button>
+                <button type="button" onclick="ui.insBloc_rmApt()" class="btn rm-btn wp1 inline"><i class="fas fa-minus-square"></i> Apartement</button>
 
                 <div id="${this.insBloc_aptContainerDiv_id}" class="bg-l-grey p05 mb1 br1"></div>
 
@@ -71,8 +68,6 @@ class UI {
         `;
 
         this.formsContainer.appendChild(insBloc_div);
-
-        return Promise.resolve("add eventListeners");
     }
 
     insBloc_addApt() {
@@ -132,21 +127,15 @@ class UI {
     insApts(blocsData) {
         // console.table(blocsData);
 
-        /**
-         * Targets identifiers
-         */
-        this.insApts_form_id = "insApts";
         this.insApts_selectBloc_id = "insApts-select-bloc";
-        this.insApts_addFloors_attr = "insApts_AddFloors";
-        this.insApts_rmFloor_attr = "insApts_rmFloor";
         this.insApts_submitBtn_id = "insApts_submit-btn";
         this.insApts_floorsContainerDiv_id = "insApts-floors-container";
 
         // Create form with container for adding floors & apts
         const insApt_div = document.createElement("div");
         insApt_div.innerHTML = `
-        <form id="${this.insApts_form_id}">
-            <label for"bloc_id">Bloc</label>
+        <form onsubmit="insApts_form_submit(event)">
+            <label for"bloc_id"><i class="fas fa-building"></i> Bloc</label>
             <select name="bloc_id" required class="w5 first-input" id="${
                 this.insApts_selectBloc_id
             }">
@@ -156,13 +145,9 @@ class UI {
             })}
             </select>
 
-            <button type="button" class="inline wp1 btn add-btn" ${
-                this.insApts_addFloors_attr
-            }><i class="fas fa-plus-square"></i> Série d'étages</button>
+            <button type="button" class="inline wp1 btn add-btn" onclick="ui.insApts_addFloor()"><i class="fas fa-plus-square"></i> Série d'étages</button>
 
-            <button type="button" class="inline wp1 btn rm-btn" ${
-                this.insApts_rmFloor_attr
-            }><i class="fas fa-minus-square"></i> Série d'étages</button>
+            <button type="button" class="inline wp1 btn rm-btn" onclick="ui.insApts_rmFloor()"><i class="fas fa-minus-square"></i> Série d'étages</button>
 
             <div id="${
                 this.insApts_floorsContainerDiv_id
@@ -175,11 +160,9 @@ class UI {
         `;
 
         this.formsContainer.appendChild(insApt_div);
-
-        return Promise.resolve("add eventListeners");
     }
 
-    insApts_addFloor(blocsData) {
+    insApts_addFloor() {
         if (this.insApts_FloorsInputNameIterator >= 5) return;
 
         const floorsContainer = document.getElementById(
@@ -192,10 +175,10 @@ class UI {
         const floors = document.createElement("div");
         floors.classList.add("card", "mt1", "mb1");
         floors.innerHTML = `
-        <label for="floors">Serie d'étages</label>
+        <label for="floors"><i class="fas fa-layer-group"></i> Serie d'étages</label>
         <input name="floors[${i}][floors]" placeholder="3;5;6;9;..." pattern="([0-9]+;)*[0-9]+(;)?" required class="inline"/>
         
-        ${this.insApts_floorApts(blocsData)}
+        ${this.insApts_floorApts(state.blocsData)}
         `;
 
         floorsContainer.appendChild(floors);
@@ -259,20 +242,17 @@ class UI {
      * just an overlay that contains hidden forms
      * @returns promesse to chain actions
      */
-    transaction() {
-        const transaction_formsOverlay = document.createElement("div");
-        this.transaction_formsOverlay_id = "transaction_formsOverlay";
-        transaction_formsOverlay.id = this.transaction_formsOverlay_id;
-        transaction_formsOverlay.classList.add(
-            "overlay",
-            "hidden",
-            "flex-center"
-        );
-        this.hideOverlayEventListener(transaction_formsOverlay);
+    newDeal() {
+        const newDeal_formsOverlay = document.createElement("div");
+        this.newDeal_formsOverlay_id = "newDeal_formsOverlay";
+        newDeal_formsOverlay.id = this.newDeal_formsOverlay_id;
+        newDeal_formsOverlay.classList.add("overlay", "hidden", "flex-center");
+        this.hideOverlayEventListener(newDeal_formsOverlay);
 
-        this.transaction_appendReserveForm(transaction_formsOverlay);
+        // create client + assign house || assign house to existent client
+        this.newDeal_appendReserveForm(newDeal_formsOverlay);
 
-        document.body.appendChild(transaction_formsOverlay);
+        document.body.appendChild(newDeal_formsOverlay);
 
         return Promise.resolve("add event listeners");
     }
@@ -281,141 +261,150 @@ class UI {
      *
      * @param {HTMLDivElement} container
      */
-    transaction_appendReserveForm(container) {
-        this.transaction_reserveFormsContainer_id =
-            "transaction_reserveFormsContainer";
-        this.transaction_reserveToNewClientForm_id =
-            "transaction_reserveToNewClientForm";
-        this.transaction_reserveToExistantClientForm_id =
-            "transaction_reserveToExistantClientForm";
+    newDeal_appendReserveForm(container) {
+        this.newDeal_reserveFormsContainer_id = "newDeal_reserveFormsContainer";
+        this.newDeal_reserveResultDiv_id = "newDeal_reserveResultDiv";
 
-        const transaction_reserveForm_div = `
-        <div class="bg-w p1 center-xy">
-        <div id="${this.transaction_reserveFormsContainer_id}" class="hidden flex">
-            <form id="${this.transaction_reserveToNewClientForm_id}" class="flex">
-            <div>
-                <label for="client_lname">Nom</label>
+        const newDeal_reserveForm_div = `
+        <div class="bg-w center-xy">
+        <div id="${this.newDeal_reserveFormsContainer_id}" class="hidden flex">
+            <form onsubmit="newDeal_reserveToNewClientForm_onsubmit(event)" class="p1 ph2">
+
+            <div class="inline ml1">            
+                <label required for="client_lname"><i class="fas fa-user-alt"></i> Nom</label>
                 <input name="client_lname" type="text" required >
+            </div>
                 
-                <label for="client_fname">Prenom</label>
+            <div class="inline ml1">                
+                <label required for="client_fname"><i class="fas fa-user-alt"></i> Prénom</label>
                 <input name="client_fname" type="text" required >
+            </div><br>
 
-                <label for="client_birthday">Date de naissance</label>
+            <div class="inline ml1">                
+                <label required for="client_birthday"><i class="fas fa-birthday-cake"></i> Date de naissance</label>
                 <input name="client_birthday" type="date" required>
+            </div>
 
-                <label for="client_birthplace">Lieu de naissance</label>
-                <input name="client_birthplace" type="text">
+            <div class="inline ml1">                
+                <label required for="client_birthplace"><i class="fas fa-hospital"></i> Lieu de naissance</label>
+                <input name="client_birthplace" type="text" required>
+            </div><br>
 
-                <label for="client_father_fname">Prenom du père</label>
-                <input name="client_father_fname" type="text">
+            <div class="inline ml1">                
+                <label required for="client_father_fname"><i class="fas fa-male"></i> Prénom du père</label>
+                <input name="client_father_fname" type="text" required>
+            </div>
 
-                <label for="client_mother_name">Nom complet de la mère</label>
-                <input name="client_mother_name" type="text">
+            <div class="inline ml1">                
+                <label required for="client_mother_name"><i class="fas fa-female"></i> Nom complet de la mère</label>
+                <input name="client_mother_name" type="text" required>
+            </div><br>
 
-                <label for="client_cni_number">CNI n°</label>
+            <div class="inline ml1">                
+                <label required for="client_cni_number"><i class="fas fa-id-card"></i> CNI n°</label>
                 <input name="client_cni_number" type="text" required pattent="[0-9]+">
-
-                <label for="client_cni_date">CNI délivré le</label>
-                <input name="client_cni_date" type="date">
-
-                <label for="client_address">Adresse</label>
-                <input name="client_address" type="text" required >
             </div>
-            <div>
-                <label for="client_phone">Telephone</label>
+
+            <div class="inline ml1">                
+                <label required for="client_cni_date"><i class="fas fa-id-card"></i> CNI délivrée le</label>
+                <input name="client_cni_date" type="date" required>
+            </div><br>
+
+            <div class="inline ml1">                
+                <label required for="client_address"><i class="fas fa-map-marked-alt"></i> Adresse</label>
+                <input name="client_address" type="text" required class="w25">
+            </div><br>
+
+            <div class="inline ml1">                
+                <label required for="client_phone"><i class="fas fa-mobile-alt"></i> Téléphone</label>
                 <input name="client_phone" type="tel" required>
-
-                <label for="client_email">email</label>
-                <input name="client_email" type="email" required>
-
-                <label for="client_marital_status">Etat civil</label>
-                <input name="client_marital_status" type="text" required>
-                
-                <label for="client_profession">Profession</label>
-                <input name="client_profession" type="text">
-                
-                <label for="client_income">Revenu</label>
-                <input name="client_income" type="text">
-                
-                <label for="payment">Montant</label>
-                <input name="payment" type="number" required>
-
-                <label for="payment_chars">Montant en lettre</label>
-                <input name="payment_chars" type="text">
-
-                <label for="payment_type">Cache</label>
-                <input name="payment_type" type="radio" value="cache" required/>
-                <label for"=payment_type">Bank</label>
-                <input name="payment_type" type="radio" value="bank" required/>
-
-                <button type="submit" class="inline wp1 btn add-btn">Nouveau client + accord</button>
             </div>
+
+            <div class="inline ml1">                
+                <label required for="client_email"><i class="fas fa-envelope"></i> Email</label>
+                <input name="client_email" type="email" required>
+            </div><br>
+
+            <div class="inline ml1">                
+                <label required for="client_marital_status"><i class="fas fa-user-alt"></i> Etat civil</label>
+                <select name="client_marital_status" required>
+                    <option disabled selected value> -- Etat civil -- </option>
+                    <option value="Célibataire">Célibataire</option>
+                    <option value="Marié(e)">Marié(e)</option>
+                    <option value="Séparé(e)">Séparé(e)</option>
+                    <option value="Divorcé(e)">Divorcé(e)</option>
+                    <option value="Veuf ou veuve">Veuf ou veuve</option>
+                </select>
+            </div><br>
+                
+            <div class="inline ml1">                
+                <label for="client_profession"><i class="fas fa-suitcase"></i> Profession</label>
+                <input name="client_profession" type="text">
+            </div>
+                
+            <div class="inline ml1">                
+                <label for="client_income"><i class="fas fa-wallet"></i> Revenu</label>
+                <input name="client_income" type="number" min="0" max="1000000000" class="w9">
+            </div><br>
+                
+            <div class="inline ml1">                
+                <label required for="payment"><i class="fas fa-cash-register"></i> Montant</label>
+                <input name="payment" type="number" min="100000" max="10000000" required class="w9">
+            </div>
+
+            <div class="flex-row-base ml1">                
+                <label for="payment_type"><i class="fas fa-money-bill"></i> Cache</label>
+                <input name="payment_type" type="radio" value="cache" required class="w3"/>            
+                <label for"=payment_type"><i class="fas fa-money-check"></i> Bank</label>
+                <input name="payment_type" type="radio" value="bank" required class="w3"/>
+            </div>
+
+            <div class="ml1">                
+                <button type="submit" class="inline wp1 btn add-btn"><i class="fas fa-user-plus"></i><i class="fas fa-scroll"></i> Nouveau client et accord</button>
+            </div>
+
             </form>
             <hr>
-            <form id="${this.transaction_reserveToExistantClientForm_id}">
-                <label for="client_identifier_key">Clé</label>
+            <form onsubmit="newDeal_reserveToExistantClientForm_onsubmit(event)" class="p1 ph2 bg-lll-grey">
+                <label for="client_identifier_key"><i class="fas fa-id-badge"></i> Clé d'identification</label>
                 <select name="client_identifier_key">
                     <option value="client_cni_number">CNI n°</option>
                 </select>
 
-                <label for="client_identifier_value">Valeur</label>
+                <label required for="client_identifier_value"><i class="fas fa-fingerprint"></i> Valeur d'identification</label>
                 <input name="client_identifier_value" type="text" required/>
 
-                <label for="payment">Montant</label>
-                <input name="payment" type="number" required>
+                <label required for="payment"><i class="fas fa-cash-register"></i> Montant</label>
+                <input name="payment" type="number" min="100000" max="10000000" required class="w9">
 
-                <label for="payment_chars">Montant en lettre</label>
-                <input name="payment_chars" type="text">
-
-                <label for="payment_type">Cache</label>
+                <label for="payment_type"><i class="fas fa-money-bill"></i> Cache</label>
                 <input name="payment_type" type="radio" value="cache" required/>
-                <label for"=payment_type">Bank</label>
+                <label for"=payment_type"><i class="fas fa-money-check"></i> Bank</label>
                 <input name="payment_type" type="radio" value="bank" required/>
 
-                <button type="submit" class="inline wp1 btn add-btn">Accord</button>
+                <button type="submit" class="inline wp1 btn add-btn"><i class="fas fa-scroll"></i>  Accord</button>
             </form>
         </div>
+        <div id="${this.newDeal_reserveResultDiv_id}" class="center-text p1 ph2 btr"></div>
         </div>
         `;
 
-        container.innerHTML = transaction_reserveForm_div;
-    }
-
-    transaction_confirmTransactionForm(transactionId, aptLabel, floorNb) {
-        // const transaction_confirmTransactionFormContainer = document.createElement(
-        //     "div"
-        // );
-
-        this.transaction_confirmTransactionForm_attr =
-            "transaction_confirmTransactionForm";
-
-        const transaction_confirmTransactionFormContainer = `
-            <form ${this.transaction_confirmTransactionForm_attr}>
-                <input type="hidden" name="transaction_id" value="${transactionId}"/>
-                <input type="hidden" name="apt_label" value="${aptLabel}"/>
-                <input type="hidden" name="floor_nb" value="${floorNb}"/>
-                <input type="password" name="pwd"  autocomplete />
-                <button type="submit">Confirmer</button>
-            </form>
-        `;
-
-        return transaction_confirmTransactionFormContainer;
+        container.innerHTML = newDeal_reserveForm_div;
     }
 
     searchHouse() {
         const searchHouse_div = document.createElement("div");
 
-        this.searchHouse_form_id = "searchHouse";
         this.searchHouse_submitBtn_id = "searchHouse-submit-btn";
         this.searchHouse_resultDiv_id = "searchHouse-result";
 
         searchHouse_div.innerHTML = `
-            <form id="${this.searchHouse_form_id}">
+            <form onsubmit="searchHouse_form_onSubmit(event)">
 
-                <label for="apt_label">Apartement</label>
+                <label for="apt_label"><i class="fas fa-home"></i> Apartement</label>
                 <input name="apt_label" type="text" required pattern="[a-zA-Z][0-9]?-[1-8]" class="w5"/>
 
-                <label for="floor_nb">Etage</label>
+                <label for="floor_nb"><i class="fas fa-layer-group"></i> Etage</label>
                 <input name="floor_nb" type="number" required min="1" max="20" class="w4"/>
 
                 <button type="submit" id="${this.searchHouse_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Maison</button>
@@ -426,18 +415,14 @@ class UI {
         `;
 
         this.formsContainer.appendChild(searchHouse_div);
-
-        return Promise.resolve("add eventListeners");
     }
 
     searchHouse_displayResult(aptData) {
         const searchHouse_result_div = document.getElementById(
             this.searchHouse_resultDiv_id
         );
-        this.transaction_actionCell_id = "transaction_actionCell";
         this.transaction_freeHouse_attr = "transaction_freeHouse";
-        // this.transaction_sellHouse_attr = "transaction_sellHouse";
-        this.transaction_reserveHouse_attr = "transaction_reserveHouse";
+        this.newDeal_reserveHouse_attr = "newDeal_reserveHouse";
 
         let table = `
         <table>
@@ -458,46 +443,42 @@ class UI {
                 <td>${aptData.apt_label}</td>
                 <td>${aptData.apt_type}</td>
                 <td>${aptData.surface}</td>
-                <td>${aptData.surface_real}</td>`;
+                <td>${aptData.surface_real}</td>
+                <td onclick="newDeal_actionCell_onClick(event)">
+                `;
 
         if (!aptData.client_id) {
             table += `
-                <td id="${this.transaction_actionCell_id}">
-                    <span ${this.transaction_reserveHouse_attr} class="clickable-text">Libre</span>
-                </td>`;
+                    <span ${this.newDeal_reserveHouse_attr} class="clickable-text">Libre</span>`;
         } else {
             table += `
-                <td id="${this.transaction_actionCell_id}">
-                    <span ${this.transaction_freeHouse_attr} class="clickable-text">Reservé</span>
-                </td>`;
+                    <span ${this.transaction_freeHouse_attr} class="clickable-text">Reservé</span>`;
         }
 
         table += `
+                </td>
             </tr>
         </table>
         `;
 
         searchHouse_result_div.innerHTML = table;
-
-        return Promise.resolve("add event lsitener to actoin cell");
     }
 
     searchClient() {
         const searchClient_div = document.createElement("div");
 
-        this.searchClient_form_id = "searchClient";
         this.searchClient_submitBtn_id = "searchClient-submit-btn";
         this.searchClient_resultDiv_id = "searchClient-result";
 
         searchClient_div.innerHTML = `
-        <form id="${this.searchClient_form_id}">
+        <form onsubmit="searchClient_form_onsubmit(event)">
 
-            <label for="client_identifier_key">Clé</label>
+            <label for="client_identifier_key"><i class="fas fa-id-badge"></i> Clé d'identification</label>
             <select name="client_identifier_key">
                 <option value="client_cni_number">CNI n°</option>
             </select>
 
-            <label for="client_identifier_value">Valeur</label>
+            <label required for="client_identifier_value"><i class="fas fa-fingerprint"></i> Valeur d'identification</label>
             <input name="client_identifier_value" type="text" required/>
 
             <button type="submit" id="${this.searchClient_submitBtn_id}" class="wp1 btn add-btn"><i class="fas fa-search"></i> Transactions</button>
@@ -508,8 +489,6 @@ class UI {
         `;
 
         this.formsContainer.appendChild(searchClient_div);
-
-        return Promise.resolve("add eventListeners");
     }
 
     searchClient_displayResult(clientTransactions) {
@@ -547,9 +526,7 @@ class UI {
             if (transaction.payment_confirmed === "0") {
                 table += `
                     <td>${ui.transaction_confirmTransactionForm(
-                        transaction.transaction_id,
-                        transaction.apt_label,
-                        transaction.floor_nb
+                        transaction.transaction_id
                     )}</td>
                 </tr>
                 `;
@@ -564,6 +541,18 @@ class UI {
         searchClient_resultDiv.innerHTML = table;
 
         return Promise.resolve("cofirmation event listener");
+    }
+
+    transaction_confirmTransactionForm(transactionId) {
+        const transaction_confirmTransactionFormContainer = `
+            <form onsubmit="transaction_confirmTransactionForm_onsubmit(event)">
+                <input type="hidden" name="transaction_id" value="${transactionId}"/>
+                <input type="password" name="pwd"  autocomplete class="w5"/>
+                <button type="submit" class="wp1 btn critical-btn"><i class="fas fa-stamp"></i> Confirmer</button>
+            </form>
+        `;
+
+        return transaction_confirmTransactionFormContainer;
     }
 
     displayFreeHouses(freeAptsData) {
@@ -855,8 +844,6 @@ const formSubmitter = new FormSubmitter();
 
 const state = {};
 
-const reportAll = true;
-
 ui.appendReportDivToggler().then(reportDivToggler_eventListener);
 
 // state variable
@@ -876,41 +863,37 @@ function locationChanges() {
     ui.highlightasideMenuLocation(hash);
 
     if (hash === "#init-deal") {
-        ui.transaction().then(transaction_eventListeners);
-        ui.searchHouse().then(searchHouse_eventListeners);
+        ui.newDeal();
+        ui.searchHouse();
     } else if (hash === "#client-transactions") {
-        ui.searchClient().then(searchClient_eventListeners);
+        ui.searchClient();
     } else if (hash === "#list-apt-free") {
         fetcher
             .getFreeHouses()
             .then((json) => {
-                console.log(json);
+                // console.log(json);
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     ui.displayFreeHouses(json.CONTENT);
-                } else if (json.REPORT === "NOTICE") {
-                    ui.appendReportDiv(json);
-                } else if (reportAll) {
-                    ui.appendReportDiv(json);
+                } else {
+                    defaultReportsHandling(json);
                 }
             })
             .catch((err) => {
                 console.warn(err);
             });
     } else if (hash === "#ins-bloc") {
-        ui.insBloc().then(insBloc_eventListeners);
+        ui.insBloc();
     } else if (hash === "#ins-apt") {
         fetcher
             .getBlocs()
             .then((json) => {
-                console.log(json);
+                // console.log(json);
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     const blocs = fetcher.joinAptsToBloc(json.CONTENT);
-                    tempBlocsData = blocs;
-                    ui.insApts(blocs).then(insApts_eventListeners);
-                } else if (json.REPORT === "NOTICE") {
-                    ui.appendReportDiv(json);
-                } else if (reportAll) {
-                    ui.appendReportDiv(json);
+                    state.blocsData = blocs;
+                    ui.insApts(blocs);
+                } else {
+                    defaultReportsHandling(json);
                 }
             })
             .catch((err) => {
@@ -919,187 +902,142 @@ function locationChanges() {
     }
 }
 
-function insBloc_eventListeners() {
-    const insBloc_form = document.getElementById(ui.insBloc_form_id);
-
-    insBloc_form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const submitBtn = document.getElementById(ui.insBloc_submitBtn_id);
-        submitBtn.style.display = "none";
-        formSubmitter.insBloc_submit(new FormData(insBloc_form), submitBtn);
-    });
-
-    insBloc_form.addEventListener("click", (e) => {
-        const target = e.target;
-
-        if (target.hasAttribute(ui.insBloc_addApt_attr)) {
-            ui.insBloc_addApt();
-        } else if (target.hasAttribute(ui.insBloc_rmApt_attr)) {
-            ui.insBloc_rmApt();
-        }
-    });
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function insBloc_form_submit(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById(ui.insBloc_submitBtn_id);
+    submitBtn.style.display = "none";
+    formSubmitter.insBloc_submit(new FormData(e.target), submitBtn);
 }
 
-function insApts_eventListeners() {
-    const insApt_form = document.getElementById(ui.insApts_form_id);
-
-    insApt_form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const submitBtn = document.getElementById(ui.insApts_submitBtn_id);
-        submitBtn.style.display = "none";
-        formSubmitter.insApts_submit(new FormData(insApt_form), submitBtn);
-    });
-
-    insApt_form.addEventListener("click", (e) => {
-        const target = e.target;
-
-        if (target.hasAttribute(ui.insApts_addFloors_attr)) {
-            ui.insApts_addFloor(tempBlocsData);
-        } else if (target.hasAttribute(ui.insApts_rmFloor_attr)) {
-            ui.insApts_rmFloor();
-        }
-    });
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function insApts_form_submit(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById(ui.insApts_submitBtn_id);
+    submitBtn.style.display = "none";
+    formSubmitter.insApts_submit(new FormData(e.target), submitBtn);
 }
 
-function searchHouse_eventListeners() {
-    const searchHouse_form = document.getElementById(ui.searchHouse_form_id);
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function searchHouse_form_onSubmit(e) {
+    e.preventDefault();
 
-    searchHouse_form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    const searchBtn = document.getElementById(ui.searchHouse_submitBtn_id);
+    searchBtn.style.display = "none";
 
-        const searchBtn = document.getElementById(ui.searchHouse_submitBtn_id);
-        searchBtn.style.display = "none";
+    fetcher
+        .getHouse(new FormData(e.target))
+        .then((json) => {
+            document.getElementById(ui.searchHouse_resultDiv_id).innerHTML = "";
+            searchBtn.style.display = "block";
 
-        fetcher
-            .getHouse(new FormData(searchHouse_form))
-            .then((json) => {
-                document.getElementById(ui.searchHouse_resultDiv_id).innerHTML =
-                    "";
-                searchBtn.style.display = "block";
-
-                if (json.REPORT === "SUCCESSFUL_FETCH") {
-                    state.house_code = json.CONTENT.house_code;
-                    ui.searchHouse_displayResult(json.CONTENT).then(() => {
-                        const actionCell = document.getElementById(
-                            ui.transaction_actionCell_id
-                        );
-
-                        actionCell.addEventListener("click", (e) => {
-                            transaction_formsOverlay.classList.remove("hidden");
-                            if (
-                                e.target.hasAttribute(
-                                    ui.transaction_freeHouse_attr
-                                )
-                            ) {
-                                transaction_reserveFormsContainer.classList.add(
-                                    "hidden"
-                                );
-                                console.log("reserved");
-                            } else if (
-                                e.target.hasAttribute(
-                                    ui.transaction_reserveHouse_attr
-                                )
-                            ) {
-                                transaction_reserveFormsContainer.classList.remove(
-                                    "hidden"
-                                );
-                                console.log("free");
-                            }
-                        });
-                    });
-                } else if (json.REPORT === "NOTICE") {
-                    ui.appendReportDiv(json);
-                } else if (reportAll) {
-                    ui.appendReportDiv(json);
-                } else {
-                    console.warn("Unexpected response");
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-    });
+            if (json.REPORT === "SUCCESSFUL_FETCH") {
+                state.house_code = json.CONTENT.house_code;
+                ui.searchHouse_displayResult(json.CONTENT);
+            } else {
+                defaultReportsHandling(json);
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 }
 
-function transaction_eventListeners() {
-    const transaction_formsOverlay = document.getElementById(
-        ui.transaction_formsOverlay_id
+/**
+ *
+ * @param {MouseEvent} e
+ */
+function newDeal_actionCell_onClick(e) {
+    const newDeal_formsOverlay = document.getElementById(
+        ui.newDeal_formsOverlay_id
     );
-    const transaction_reserveFormsContainer = document.getElementById(
-        ui.transaction_reserveFormsContainer_id
-    );
-    const transaction_reserveToNewClientForm = document.getElementById(
-        ui.transaction_reserveToNewClientForm_id
-    );
-    const transaction_reserveToExistantClientForm = document.getElementById(
-        ui.transaction_reserveToExistantClientForm_id
+    const newDeal_reserveFormsContainer = document.getElementById(
+        ui.newDeal_reserveFormsContainer_id
     );
 
-    transaction_reserveToNewClientForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+    if (e.target.hasAttribute(ui.transaction_freeHouse_attr)) {
+        newDeal_formsOverlay.classList.remove("hidden");
+        newDeal_reserveFormsContainer.classList.add("hidden");
+    } else if (e.target.hasAttribute(ui.newDeal_reserveHouse_attr)) {
+        newDeal_formsOverlay.classList.remove("hidden");
+        newDeal_reserveFormsContainer.classList.remove("hidden");
+    }
+}
 
-        const formData = new FormData(transaction_reserveToNewClientForm);
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function newDeal_reserveToNewClientForm_onsubmit(e) {
+    e.preventDefault();
 
-        formSubmitter
-            .insNewClient(formData)
-            .then((json) => {
-                // document.getElementById(ui.searchHouse_resultDiv_id).innerHTML =
-                //     "";
-                // searchBtn.style.display = "block";
+    const formData = new FormData(e.target);
 
+    formSubmitter
+        .insNewClient(formData)
+        .then((json) => {
+            if (json.REPORT === "SUCCESSFUL_INSERTION") {
                 const clientCniNumber = json.CONTENT;
+                const report = {
+                    REPORT: "SUCCESSFUL_INSERTION",
+                    CONTENT: `Le client portant la carte ${clientCniNumber} est enregistré avec succes`,
+                };
+                ui.appendReportDiv(report);
+                return Promise.resolve(clientCniNumber);
+            } else {
+                defaultReportsHandling(json);
+            }
+            return Promise.reject("didn't register new client");
+        })
+        .then((clientCniNumber) => {
+            const newDeal_formData = new FormData();
+            newDeal_formData.append(
+                "client_identifier_key",
+                "client_cni_number"
+            );
+            newDeal_formData.append("client_identifier_value", clientCniNumber);
+            newDeal_formData.append("house_code", state.house_code);
+            newDeal_formData.append("payment", formData.get("payment"));
+            newDeal_formData.append(
+                "payment_chars",
+                formData.get("payment_chars")
+            );
+            newDeal_formData.append(
+                "payment_type",
+                formData.get("payment_type")
+            );
 
-                if (json.REPORT === "SUCCESSFUL_INSERTION") {
-                    return Promise.resolve(clientCniNumber);
-                } else if (json.REPORT === "NOTICE") {
-                    ui.appendReportDiv(json);
-                } else if (reportAll) {
-                    ui.appendReportDiv(json);
-                } else {
-                    console.warn("Unexpected response");
-                }
-            })
-            .then((clientCniNumber) => {
-                console.log(clientCniNumber);
-
-                const newDeal_formData = new FormData();
-                newDeal_formData.append(
-                    "client_identifier_key",
-                    "client_cni_number"
-                );
-                newDeal_formData.append(
-                    "client_identifier_value",
-                    clientCniNumber
-                );
-                newDeal_formData.append("house_code", state.house_code);
-                newDeal_formData.append("payment", formData.get("payment"));
-                newDeal_formData.append(
-                    "payment_chars",
-                    formData.get("payment_chars")
-                );
-                newDeal_formData.append(
-                    "payment_type",
-                    formData.get("payment_type")
-                );
-
-                return formSubmitter.newDeal(newDeal_formData);
-            })
-            .then(transaction_newDealResult)
-            .catch((err) => {
-                console.error(err);
-            });
-    });
-    transaction_reserveToExistantClientForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(transaction_reserveToExistantClientForm);
-        formData.append("house_code", state.house_code);
-
-        formSubmitter.newDeal(formData).then(transaction_newDealResult);
-    });
+            return formSubmitter.newDeal(newDeal_formData);
+        })
+        .then(newDeal_newDealResult)
+        .catch((err) => {
+            console.error(err);
+        });
 }
 
-function transaction_newDealResult(firstTransaction) {
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function newDeal_reserveToExistantClientForm_onsubmit(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    formData.append("house_code", state.house_code);
+
+    formSubmitter.newDeal(formData).then(newDeal_newDealResult);
+}
+
+function newDeal_newDealResult(firstTransaction) {
     if (firstTransaction.REPORT === "SUCCESSFUL_INSERTION") {
         const transactionId = firstTransaction.CONTENT.transaction_id;
 
@@ -1109,77 +1047,62 @@ function transaction_newDealResult(firstTransaction) {
         };
         ui.appendReportDiv(report);
 
-        const pdfLink = document.createElement("span");
-        pdfLink.innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text">Ordre de versement</a>`;
-        transaction_reserveFormsContainer.appendChild(pdfLink);
-    } else if (firstTransaction.REPORT === "ERROR") {
-        ui.appendReportDiv(firstTransaction);
-    } else if (reportAll) {
-        ui.appendReportDiv(firstTransaction);
+        document.getElementById(
+            ui.newDeal_reserveResultDiv_id
+        ).innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text"><i class="fas fa-file-pdf"></i>  ORDRE DE VERSEMENT</a>`;
     } else {
-        console.warn("Unexpected response");
+        defaultReportsHandling(firstTransaction);
     }
 }
 
-function searchClient_eventListeners() {
-    const searchClient_form = document.getElementById(ui.searchClient_form_id);
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function searchClient_form_onsubmit(e) {
+    e.preventDefault();
 
-    searchClient_form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    const searchBtn = document.getElementById(ui.searchClient_submitBtn_id);
+    searchBtn.style.display = "none";
 
-        const searchBtn = document.getElementById(ui.searchClient_submitBtn_id);
-        searchBtn.style.display = "none";
+    fetcher
+        .getClientDeals(new FormData(e.target))
+        .then((json) => {
+            document.getElementById(ui.searchClient_resultDiv_id).innerHTML =
+                "";
+            searchBtn.style.display = "block";
 
-        fetcher
-            .getClientDeals(new FormData(searchClient_form))
-            .then((json) => {
-                document.getElementById(
-                    ui.searchClient_resultDiv_id
-                ).innerHTML = "";
-                searchBtn.style.display = "block";
-
-                if (json.REPORT === "SUCCESSFUL_FETCH") {
-                    state.house_code = json.CONTENT.house_code;
-                    ui.searchClient_displayResult(json.CONTENT);
-                } else if (json.REPORT === "NOTICE") {
-                    ui.appendReportDiv(json);
-                } else if (reportAll) {
-                    ui.appendReportDiv(json);
-                } else {
-                    console.warn("Unexpected response");
-                }
-            })
-            .then(transaction_confirmTransaction_eventLitener)
-            .catch((err) => {
-                console.error(err);
-            });
-    });
+            if (json.REPORT === "SUCCESSFUL_FETCH") {
+                ui.searchClient_displayResult(json.CONTENT);
+            } else {
+                defaultReportsHandling(json);
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 }
 
-function transaction_confirmTransaction_eventLitener() {
-    const transaction_confirmation_forms = document.querySelectorAll(
-        `[${ui.transaction_confirmTransactionForm_attr}]`
-    );
+/**
+ *
+ * @param {SubmitEvent} e
+ */
+function transaction_confirmTransactionForm_onsubmit(e) {
+    e.preventDefault();
 
-    transaction_confirmation_forms.forEach((transaction_confirmation_form) => {
-        transaction_confirmation_form.addEventListener("submit", (e) => {
-            e.preventDefault();
+    const formData = new FormData(e.target);
 
-            const formData = new FormData(transaction_confirmation_form);
-
-            formSubmitter.confirmTransaction(formData).then((json) => {
-                if (
-                    json.REPORT === "SUCCESSFUL_FETCH" &&
-                    Number.isInteger(json.CONTENT)
-                ) {
-                    e.target.parentElement.innerHTML = `
-                    <a href='${location.origin}/Apis_pdf/versement/${json.CONTENT}' target='_blank' class="clickable-text">RECU DE VERSEMENT</a>
-                    <br>
-                    <a href='${location.origin}/Apis_pdf/reservation/${json.CONTENT}' target='_blank' class="clickable-text">CONTRAT DE RESERVATION</a>
-                    `;
-                }
-            });
-        });
+    formSubmitter.confirmTransaction(formData).then((json) => {
+        if (
+            json.REPORT === "SUCCESSFUL_FETCH" &&
+            Number.isInteger(json.CONTENT)
+        ) {
+            e.target.parentElement.innerHTML = `
+                <a href='${location.origin}/Apis_pdf/versement/${json.CONTENT}' target='_blank' class="clickable-text"><i class="fas fa-file-pdf"></i> RECU DE VERSEMENT</a>
+                <br>
+                <a href='${location.origin}/Apis_pdf/reservation/${json.CONTENT}' target='_blank' class="clickable-text"><i class="fas fa-file-pdf"></i> CONTRAT DE RESERVATION</a>
+                `;
+        }
     });
 }
 
@@ -1197,4 +1120,16 @@ function reportDivToggler_eventListener() {
             icon.classList.add("fa-angle-double-right");
         }
     });
+}
+
+function defaultReportsHandling(json) {
+    const reportAll = true;
+
+    if (json.REPORT === "NOTICE") {
+        ui.appendReportDiv(json);
+    } else if (reportAll) {
+        ui.appendReportDiv(json);
+    } else {
+        console.warn("Unexpected response");
+    }
 }

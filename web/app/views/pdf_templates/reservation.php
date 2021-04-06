@@ -1,5 +1,6 @@
 <?php ob_start();?>
 
+<p class="right-text mb36">ORAN LE : <?=$date?></p>
 <div class="mb18"></div>
 <p class="header2 mb36">CONTRAT DE RESERVATION</p>
 
@@ -25,7 +26,6 @@
 <p class="m0 mt9 bold">LE PROMOTEUR :</p>
 <p class="m0 text12">S’engage à retenir le postulant en qualité dans le cadre du projet susmentionné ;</p>
 
-<p class="right-text">Faite à : Oran, Le <?=$date?></p>
 
 <img src='<?=$qr_code_file?>' width="100px">
 
