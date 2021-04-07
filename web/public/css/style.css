@@ -249,6 +249,15 @@ h5,
     text-align: center;
 }
 
+.colored-text1 {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+.colored-text2 {
+    color: var(--complementary-color12);
+    font-weight: bold;
+}
+
 .card {
     padding: 1rem;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,

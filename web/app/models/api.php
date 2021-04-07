@@ -227,7 +227,7 @@ class Api extends Database
             return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $[A-Z][0-9]-[1-8]");
         }
 
-        $query2 = "SELECT apts.bloc_id, houses.door_number, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real, clients.client_id
+        $query2 = "SELECT apts.bloc_id, houses.door_number, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real, clients.client_cni_number
             FROM houses
             JOIN apts
             ON houses.apt_label = apts.apt_label
@@ -258,6 +258,7 @@ class Api extends Database
 
     }
 
+    // >>>>>>>>>>> LACK VALIDATION
     public function insert_client(array $client_data): array
     {
         $query1 = 'INSERT INTO clients(client_lname, client_fname, client_phone, client_email, client_address, client_father_fname, client_mother_name, client_birthday, client_birthplace, client_marital_status, client_profession, client_income, client_cni_number, client_cni_date)

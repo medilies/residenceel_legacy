@@ -338,8 +338,8 @@ class UI {
             </div><br>
                 
             <div class="inline ml1">                
-                <label for="client_profession"><i class="fas fa-suitcase"></i> Profession</label>
-                <input name="client_profession" type="text">
+                <label required for="client_profession"><i class="fas fa-suitcase"></i> Profession</label>
+                <input name="client_profession" type="text" required>
             </div>
                 
             <div class="inline ml1">                
@@ -421,8 +421,6 @@ class UI {
         const searchHouse_result_div = document.getElementById(
             this.searchHouse_resultDiv_id
         );
-        this.transaction_freeHouse_attr = "transaction_freeHouse";
-        this.newDeal_reserveHouse_attr = "newDeal_reserveHouse";
 
         let table = `
         <table>
@@ -444,15 +442,15 @@ class UI {
                 <td>${aptData.apt_type}</td>
                 <td>${aptData.surface}</td>
                 <td>${aptData.surface_real}</td>
-                <td onclick="newDeal_actionCell_onClick(event)">
+                <td>
                 `;
 
-        if (!aptData.client_id) {
+        if (!aptData.client_cni_number) {
             table += `
-                    <span ${this.newDeal_reserveHouse_attr} class="clickable-text">Libre</span>`;
+                    <span onclick="newDeal_callReserveForm_onClick(event)" class="clickable-text">Libre</span>`;
         } else {
             table += `
-                    <span ${this.transaction_freeHouse_attr} class="clickable-text">Reservé</span>`;
+                    <span class="colored-text2">Réservé</span> par:<br>${aptData.client_cni_number}`;
         }
 
         table += `
@@ -476,6 +474,8 @@ class UI {
             <label for="client_identifier_key"><i class="fas fa-id-badge"></i> Clé d'identification</label>
             <select name="client_identifier_key">
                 <option value="client_cni_number">CNI n°</option>
+                <option value="client_phone">Téléphone</option>
+                <option value="client_email">Email</option>
             </select>
 
             <label required for="client_identifier_value"><i class="fas fa-fingerprint"></i> Valeur d'identification</label>
@@ -491,56 +491,132 @@ class UI {
         this.formsContainer.appendChild(searchClient_div);
     }
 
-    searchClient_displayResult(clientTransactions) {
+    searchClient_displayResult(client) {
         const searchClient_resultDiv = document.getElementById(
             this.searchClient_resultDiv_id
         );
 
-        let table = `
-            <table>
-                <caption>Transactions</caption>
+        const info = client.client_data;
+
+        const clientData = `
+        <div>
+            <h3 class="mt1 colored-text2">Client:</h3>
+            <p>
+                <i class="fas fa-user-alt"></i> 
+                <span class="colored-text1">${info.client_lname} ${info.client_fname}</span>
+            </p>
+            <p>
+                <i class="fas fa-birthday-cake"></i> 
+                Né(e) le: <span class="colored-text1">${info.client_birthday}</span> à <span class="colored-text1">${info.client_birthplace}</span>
+            </p>
+            <p>
+                <i class="fas fa-user-alt"></i> 
+                Fils de: <span class="colored-text1">${info.client_lname} ${info.client_father_fname}</span> et de: <span class="colored-text1">${info.client_mother_name}</span>
+            </p>
+            <p>
+                <i class="fas fa-map-marked-alt"></i> 
+                Adresse: <span class="colored-text1">${info.client_address}</span>
+            </p>
+            <p>
+                <i class="fas fa-user-alt"></i> 
+                Etat maritale: <span class="colored-text1">${info.client_marital_status}</span>
+            </p>
+            <p>
+                <i class="fas fa-suitcase"></i>
+                Profession: <span class="colored-text1">${info.client_profession}</span>, revenu: <span class="colored-text1">${info.client_income}</span>
+            </p>
+            <p>
+                <i class="fas fa-id-card"></i>
+                CNI: <span class="colored-text1">${info.client_cni_number}</span>, délivré le: <span class="colored-text1">${info.client_cni_date}</span>
+            </p>
+            <p>
+                <i class="fas fa-mobile-alt"></i>
+                Téléphone: <span class="colored-text1">${info.client_phone}</span>
+            </p>
+            <p>
+                <i class="fas fa-envelope"></i> 
+                Email: <span class="colored-text1">${info.client_email}</span>
+            </p>
+        </div>
+        <h3 class="mt1 colored-text2">Accords:</h3>
+        `;
+
+        let dealsDiv = "";
+        client.client_deals.forEach((deal) => {
+            let dealState;
+            if (deal.deal_confirmed === 1 && deal.deal_closed === 0) {
+                dealState = "Reservation confirmée";
+            } else if (deal.deal_confirmed === 0 && deal.deal_closed === 0) {
+                dealState = "Reservation non-confirmée";
+            } else if (deal.deal_confirmed === 1 && deal.deal_closed === 1) {
+                dealState = "Maison acquise";
+            } else {
+                throw "weird conditions";
+            }
+
+            dealsDiv += `
+                <h4>
+                    Apartement <span class="colored-text1">${deal.apt_label}</span>
+                    à l'étage <span class="colored-text1">${deal.floor_nb}</span>
+                </h4>
+                <p class="tiny-text">Bloc <span class="bold">${deal.bloc_id}</span> - Porte n° <span class="bold">${deal.door_number}</span> - Type <span class="bold">${deal.apt_type}</span> - Surface <span class="bold">${deal.surface_real}</span></p>
+                <p>Accord: <span class="bold">${deal.deal_code}</span> <span class="colored-text2">"${dealState}"</span></p>
+            `;
+
+            if (
+                dealState === "Reservation confirmée" ||
+                dealState === "Reservation non-confirmée"
+            ) {
+                dealsDiv += this.transaction_cancelDealForm(deal.deal_code);
+            }
+
+            if (dealState === "Reservation confirmée") {
+                dealsDiv += this.transaction_closeDealForm(deal.deal_code);
+            }
+
+            let table = `
+            <table class="mb1">
                 <tr>
-                    <th>Nom</th>
-                    <th>Prenom</th>
-                    <th>Apartement</th>
-                    <th>Etage</th>
+                    <th>Transaction</th>
                     <th>Fait le</th>
                     <th>Montant</th>
-                    <th>Montant en lettres</th>
+                    <th class="w9">Montant en lettres</th>
                     <th>Payé par</th>
                     <th>Confirmation</th>
                 </tr>
             `;
-        clientTransactions.forEach((transaction) => {
-            table += `
-                <tr>
-                    <td>${transaction.client_lname}</td>
-                    <td>${transaction.client_fname}</td>
-                    <td>${transaction.apt_label}</td>
-                    <td>${transaction.floor_nb}</td>
+            client.client_transactions.forEach((transaction) => {
+                if (transaction.deal_code === deal.deal_code) {
+                    table += `
+                    <tr>
+                    <td>${transaction.transaction_id}</td>
                     <td>${transaction.transaction_date}</td>
                     <td>${transaction.payment}</td>
                     <td>${transaction.payment_chars}</td>
                     <td>${transaction.payment_type}</td>
-                `;
-            if (transaction.payment_confirmed === "0") {
-                table += `
-                    <td>${ui.transaction_confirmTransactionForm(
-                        transaction.transaction_id
-                    )}</td>
-                </tr>
-                `;
-            } else if (transaction.payment_confirmed === "1") {
-                table += `
-                    <td>Confirmé</td>
-                </tr>
-                `;
-            }
-        });
-        table += "</table>";
-        searchClient_resultDiv.innerHTML = table;
+                    `;
+                    if (transaction.payment_confirmed === 0) {
+                        table += `
+                        <td>${ui.transaction_confirmTransactionForm(
+                            transaction.transaction_id
+                        )}</td>
+                            </tr>
+                            `;
+                    } else if (transaction.payment_confirmed === 1) {
+                        table += `
+                            <td class="colored-text2">Confirmé</td>
+                            </tr>
+                            `;
+                    }
+                }
+            });
+            table += "</table><hr>";
 
-        return Promise.resolve("cofirmation event listener");
+            dealsDiv += table;
+        });
+
+        searchClient_resultDiv.innerHTML = clientData;
+        searchClient_resultDiv.innerHTML += dealsDiv;
     }
 
     transaction_confirmTransactionForm(transactionId) {
@@ -548,11 +624,35 @@ class UI {
             <form onsubmit="transaction_confirmTransactionForm_onsubmit(event)">
                 <input type="hidden" name="transaction_id" value="${transactionId}"/>
                 <input type="password" name="pwd"  autocomplete class="w5"/>
-                <button type="submit" class="wp1 btn critical-btn"><i class="fas fa-stamp"></i> Confirmer</button>
+                <button type="submit" class="wp1 btn critical-btn"><i class="fas fa-stamp"></i> Confirmer le versement</button>
             </form>
         `;
 
         return transaction_confirmTransactionFormContainer;
+    }
+
+    transaction_cancelDealForm(dealCode) {
+        const transaction_cancelDealFormContainer = `
+            <form onsubmit="transaction_cancelDealForm_onsubmit(event)" class="mt05 mb1">
+                <input type="hidden" name="deal_code" value="${dealCode}"/>
+                <input type="password" name="pwd"  autocomplete class="w5 inline"/>
+                <button type="submit" class="wp1 inline btn critical-btn"><i class="fas fa-unlink"></i> Annuler l'accord</button>
+            </form>
+        `;
+
+        return transaction_cancelDealFormContainer;
+    }
+
+    transaction_closeDealForm(dealCode) {
+        const transaction_closeDealFormContainer = `
+            <form onsubmit="transaction_closeDealForm_onsubmit(event)" class="mt05 mb1">
+                <input type="hidden" name="deal_code" value="${dealCode}"/>
+                <input type="password" name="pwd"  autocomplete class="w5 inline"/>
+                <button type="submit" class="wp1 inline btn critical-btn"><i class="fas fa-key"></i> Remise des clés</button>
+            </form>
+        `;
+
+        return transaction_closeDealFormContainer;
     }
 
     displayFreeHouses(freeAptsData) {
@@ -599,7 +699,13 @@ class UI {
     appendReportDiv(reportObj) {
         const report = document.createElement("div");
         let icon;
-        if (reportObj.REPORT === "SUCCESSFUL_INSERTION") {
+        if (
+            [
+                "SUCCESSFUL_INSERTION",
+                "SUCCESSFUL_DELETE",
+                "SUCCESSFUL_UPDATE",
+            ].includes(reportObj.REPORT)
+        ) {
             report.classList.add("report", "success-report");
             icon = "<i class='fas fa-check-double'></i> ";
         }
@@ -628,7 +734,13 @@ class UI {
         }
 
         if (this.reportsContainer.classList.contains("hidden")) {
-            if (reportObj.REPORT === "SUCCESSFUL_INSERTION") {
+            if (
+                [
+                    "SUCCESSFUL_INSERTION",
+                    "SUCCESSFUL_DELETE",
+                    "SUCCESSFUL_UPDATE",
+                ].includes(reportObj.REPORT)
+            ) {
                 this.reportDivToggler.style.background = "green";
             } else {
                 this.reportDivToggler.style.background = "orange";
@@ -740,6 +852,28 @@ class FormSubmitter {
     async confirmTransaction(formData) {
         const res = await fetch(
             `${this.baseUrl}/Apis_transactions/confirm_transaction`,
+            {
+                method: "post",
+                body: formData,
+            }
+        );
+        return await res.json();
+    }
+
+    async cancelDeal(formData) {
+        const res = await fetch(
+            `${this.baseUrl}/Apis_transactions/cancel_deal`,
+            {
+                method: "post",
+                body: formData,
+            }
+        );
+        return await res.json();
+    }
+
+    async closeDeal(formData) {
+        const res = await fetch(
+            `${this.baseUrl}/Apis_transactions/close_deal`,
             {
                 method: "post",
                 body: formData,
@@ -956,7 +1090,7 @@ function searchHouse_form_onSubmit(e) {
  *
  * @param {MouseEvent} e
  */
-function newDeal_actionCell_onClick(e) {
+function newDeal_callReserveForm_onClick(e) {
     const newDeal_formsOverlay = document.getElementById(
         ui.newDeal_formsOverlay_id
     );
@@ -964,13 +1098,8 @@ function newDeal_actionCell_onClick(e) {
         ui.newDeal_reserveFormsContainer_id
     );
 
-    if (e.target.hasAttribute(ui.transaction_freeHouse_attr)) {
-        newDeal_formsOverlay.classList.remove("hidden");
-        newDeal_reserveFormsContainer.classList.add("hidden");
-    } else if (e.target.hasAttribute(ui.newDeal_reserveHouse_attr)) {
-        newDeal_formsOverlay.classList.remove("hidden");
-        newDeal_reserveFormsContainer.classList.remove("hidden");
-    }
+    newDeal_formsOverlay.classList.remove("hidden");
+    newDeal_reserveFormsContainer.classList.remove("hidden");
 }
 
 /**
@@ -1093,8 +1222,9 @@ function transaction_confirmTransactionForm_onsubmit(e) {
     const formData = new FormData(e.target);
 
     formSubmitter.confirmTransaction(formData).then((json) => {
+        console.log(json);
         if (
-            json.REPORT === "SUCCESSFUL_FETCH" &&
+            json.REPORT === "SUCCESSFUL_UPDATE" &&
             Number.isInteger(json.CONTENT)
         ) {
             e.target.parentElement.innerHTML = `
@@ -1102,6 +1232,40 @@ function transaction_confirmTransactionForm_onsubmit(e) {
                 <br>
                 <a href='${location.origin}/Apis_pdf/reservation/${json.CONTENT}' target='_blank' class="clickable-text"><i class="fas fa-file-pdf"></i> CONTRAT DE RESERVATION</a>
                 `;
+        } else {
+            defaultReportsHandling(json);
+        }
+    });
+}
+
+function transaction_cancelDealForm_onsubmit(e) {
+    e.preventDefault();
+    e.target.querySelector("button").style.display = "none";
+
+    const formData = new FormData(e.target);
+
+    formSubmitter.cancelDeal(formData).then((json) => {
+        if (json.REPORT === "SUCCESSFUL_DELETE") {
+            ui.appendReportDiv(json);
+        } else {
+            e.target.querySelector("button").style.display = "block";
+            defaultReportsHandling(json);
+        }
+    });
+}
+
+function transaction_closeDealForm_onsubmit(e) {
+    e.preventDefault();
+    e.target.querySelector("button").style.display = "none";
+
+    const formData = new FormData(e.target);
+
+    formSubmitter.closeDeal(formData).then((json) => {
+        if (json.REPORT === "SUCCESSFUL_UPDATE") {
+            ui.appendReportDiv(json);
+        } else {
+            e.target.querySelector("button").style.display = "block";
+            defaultReportsHandling(json);
         }
     });
 }

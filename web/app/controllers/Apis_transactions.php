@@ -47,4 +47,36 @@ class Apis_transactions extends Controller
         echo json_encode($result);
     }
 
+    public function cancel_deal()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            die;
+        }
+
+        if ($_POST['pwd'] !== "31.confirm()") {
+            echo json_encode(Utility::create_report('ERROR', "Faut mot de passe"));
+            die;
+        }
+
+        $result = $this->ApiModel->cancel_deal($_POST['deal_code']);
+        echo json_encode($result);
+    }
+
+    public function close_deal()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            die;
+        }
+
+        if ($_POST['pwd'] !== "31.confirm()") {
+            echo json_encode(Utility::create_report('ERROR', "Faut mot de passe"));
+            die;
+        }
+
+        $result = $this->ApiModel->close_deal($_POST['deal_code']);
+        echo json_encode($result);
+    }
+
 }

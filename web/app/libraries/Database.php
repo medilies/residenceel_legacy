@@ -15,6 +15,8 @@ class Database
 
         $cnx->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $cnx->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $cnx->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $cnx->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 
         return $cnx;
     }
@@ -33,7 +35,10 @@ class Database
             $this->Insertor = $this->connexion(getenv('insert_username'), getenv('insert_password'));
         }
         if (in_array('UPDATE', $required_privileges)) {
-            $this->Updator = $this->connexion(getenv('update_username'), getenv('insert_password'));
+            $this->Updator = $this->connexion(getenv('update_username'), getenv('update_password'));
+        }
+        if (in_array('DELETE', $required_privileges)) {
+            $this->Deletor = $this->connexion(getenv('delete_username'), getenv('delete_password'));
         }
     }
 

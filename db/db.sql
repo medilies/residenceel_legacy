@@ -30,14 +30,14 @@ CREATE TABLE clients(
     client_fname VARCHAR(50) NOT NULL,
     client_lname VARCHAR(50) NOT NULL,
     client_cni_number VARCHAR(20) NOT NULL,
-    client_cni_date VARCHAR(15),
-    client_marital_status VARCHAR(12),
-    client_birthday VARCHAR(15),
-    client_birthplace VARCHAR(30),
-    client_father_fname VARCHAR(50),
-    client_mother_name VARCHAR(100),
-    client_profession VARCHAR(35),
-    client_income INTEGER,
+    client_cni_date VARCHAR(15) NOT NULL,
+    client_marital_status ENUM('Célibataire','Marié(e)','Séparé(e)','Divorcé(e)','Veuf ou veuve') NOT NULL,
+    client_birthday VARCHAR(15) NOT NULL,
+    client_birthplace VARCHAR(30) NOT NULL,
+    client_father_fname VARCHAR(50) NOT NULL,
+    client_mother_name VARCHAR(100) NOT NULL,
+    client_profession VARCHAR(35) NOT NULL,
+    client_income INTEGER DEFAULT 0,
     client_phone VARCHAR(15) UNIQUE NOT NULL,
     client_email VARCHAR(80) UNIQUE NOT NULL,
     client_address VARCHAR(150) NOT NULL
@@ -49,8 +49,7 @@ CREATE TABLE deals(
     client_id INTEGER,
     deal_code VARCHAR(32) UNIQUE NOT NULL,
     deal_confirmed TINYINT DEFAULT 0,
-    total_payed INTEGER DEFAULT 0,
-    deal_details VARCHAR(30),
+    deal_closed TINYINT DEFAULT 0,
     FOREIGN KEY (house_id) REFERENCES houses(house_id) on DELETE CASCADE,
     FOREIGN KEY (client_id) REFERENCES clients(client_id) on DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -74,5 +73,8 @@ GRANT INSERT ON hm.* TO 'INSERTOR'@'%';
 
 CREATE USER 'UPDATOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
 GRANT SELECT, UPDATE ON hm.* TO 'UPDATOR'@'%';
+
+CREATE USER 'DELETOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
+GRANT SELECT, DELETE ON hm.* TO 'DELETOR'@'%';
 
 -- SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
