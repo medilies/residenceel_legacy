@@ -29,7 +29,7 @@ CREATE TABLE clients(
     client_id INTEGER AUTO_INCREMENT PRIMARY KEY,
     client_fname VARCHAR(50) NOT NULL,
     client_lname VARCHAR(50) NOT NULL,
-    client_cni_number VARCHAR(20) NOT NULL,
+    client_cni_number VARCHAR(20) UNIQUE NOT NULL,
     client_cni_date VARCHAR(15) NOT NULL,
     client_marital_status ENUM('Célibataire','Marié(e)','Séparé(e)','Divorcé(e)','Veuf ou veuve') NOT NULL,
     client_birthday VARCHAR(15) NOT NULL,

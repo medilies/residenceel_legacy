@@ -305,7 +305,6 @@ class Api extends Database
 
     }
 
-    // >>>>>>>>>>> LACK VALIDATION
     public function insert_client(array $client_data): array
     {
         $query1 = 'INSERT INTO clients(client_lname, client_fname, client_phone, client_email, client_address, client_father_fname, client_mother_name, client_birthday, client_birthplace, client_marital_status, client_profession, client_income, client_cni_number, client_cni_date)
@@ -314,6 +313,20 @@ class Api extends Database
         foreach ($client_data as $key => $value) {
             $$key = $value;
         }
+
+        $client_lname = Validate_sanitize_person::name($client_lname);
+        $client_fname = Validate_sanitize_person::name($client_fname);
+        $client_email = Validate_sanitize_person::email($client_email);
+        $client_address = strtoupper($client_address);
+        $client_father_fname = Validate_sanitize_person::name($client_father_fname);
+        $client_mother_name = Validate_sanitize_person::name($client_mother_name);
+        $client_birthday = Validate_sanitize_person::date($client_birthday);
+        $client_birthplace = Validate_sanitize_person::name($client_birthplace);
+        $client_marital_status = Validate_sanitize_person::marital_status($client_marital_status);
+        $client_profession = Validate_sanitize_person::profession($client_profession);
+        $client_income = Validate_sanitize_person::income($client_income);
+        $client_cni_number = Validate_sanitize_person::cni($client_cni_number);
+        $client_cni_date = Validate_sanitize_person::date($client_cni_date);
 
         try {
             $client = $this->Insertor->prepare($query1);
@@ -336,8 +349,20 @@ class Api extends Database
                 return Utility::create_report('SUCCESSFUL_INSERTION', $client_cni_number);
             }
         } catch (PDOException $e) {
-            if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '.*' for key 'clients\..*'/", $e->getMessage())) {
-                return Utility::create_report('ERROR', "Le client $client_lname $client_fname est déja enregistré avec la carte $client_cni_number");
+
+            if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_cni_number' for key 'clients\.client_cni_number'/", $e->getMessage())) {
+
+                return Utility::create_report('ERROR', "Le numéro de la CNI $client_cni_number est déja enregistré pour un autre client");
+            }
+            //
+            else if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_phone' for key 'clients\.client_phone'/", $e->getMessage())) {
+
+                return Utility::create_report('ERROR', "Le numéro de téléphone $client_phone est déja enregistré pour un autre client");
+            }
+            //
+            else if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_email' for key 'clients\.client_email'/", $e->getMessage())) {
+
+                return Utility::create_report('ERROR', "L'émail $client_email est déja enregistré pour un autre client");
             }
             return Utility::create_report('ERROR', $e->getMessage());
         }

@@ -15,4 +15,15 @@ class Utility
             "CONTENT" => $content,
         ];
     }
+
+    public static function create_error_report(string $type, $content): void
+    {
+        if (!in_array($type, ['ERROR', 'INTERNAL_ERROR'])) {
+            echo json_encode(self::create_report('INTERNAL_ERROR', 'BAD METHOD USE'));
+            die;
+        }
+
+        echo json_encode(self::create_report($type, $content));
+        die;
+    }
 }

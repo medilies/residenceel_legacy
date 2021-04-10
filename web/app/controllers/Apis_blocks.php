@@ -123,6 +123,12 @@ class Apis_blocks extends Controller
             return;
         }
 
+        $this->check_missing_required_data($_POST, ['client_lname', 'client_fname', 'client_phone', 'client_email', 'client_address', 'client_father_fname', 'client_mother_name', 'client_birthday', 'client_birthplace', 'client_marital_status', 'client_profession', 'client_cni_number', 'client_cni_date']);
+
+        if (!isset($_POST['client_income']) || empty(trim($_POST['client_income']))) {
+            $_POST['client_income'] = 0;
+        }
+
         $result = $this->ApiModel->insert_client($_POST);
         echo json_encode($result);
     }
@@ -132,7 +138,7 @@ class Apis_blocks extends Controller
      * - FALSE. if no missing data
      * - array of msing keys
      */
-    private function missing_required_data(array $required_data, $posted_array)
+    private function check_missing_required_data(array $posted_array, array $required_data): void
     {
         $missing_data = [];
         foreach ($required_data as $name) {
@@ -142,11 +148,8 @@ class Apis_blocks extends Controller
         }
 
         if (!empty($missing_data)) {
-            return $missing_data;
-        } else {
-            return false;
+            Utility::create_error_report('ERROR', 'Il manque des champs mondataire dans le formulaire');
         }
-
     }
 
 }
