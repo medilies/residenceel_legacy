@@ -754,6 +754,44 @@ class UI {
         this.formsContainer.appendChild(displayReservedHouses_div);
     }
 
+    displayClients(clients) {
+        const displayclients_div = document.createElement("div");
+
+        let table = `
+        <table>
+            <caption>La liste des clients</caption>
+            <tr>
+                <th class="w9">Nom</th>
+                <th>CNI n°</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th class="w5">Nombre d'accords</th>
+                <th>Naissance</th>
+                <th>Etat marital</th>
+                <th>Profession</th>
+            </tr>
+        `;
+        clients.forEach((client) => {
+            table += `
+            <tr>
+                <td>${client.client_name}</td>
+                <td class="bold">${client.client_cni_number}</td>
+                <td class="bold">${client.client_phone}</td>
+                <td class="bold">${client.client_email}</td>
+                <td class="bolder">${client.deals_number}</td>
+                <td>${client.client_birthday}<br>à ${client.client_birthplace}</td>
+                <td>${client.client_marital_status}</td>
+                <td>${client.client_profession}</td>
+            </tr>
+            `;
+        });
+        table += "</table>";
+
+        displayclients_div.innerHTML = table;
+
+        this.formsContainer.appendChild(displayclients_div);
+    }
+
     /**
      *
      * @param {object} reportObj contains 2 keys:
@@ -988,6 +1026,11 @@ class Fetcher {
         return await res.json();
     }
 
+    async getClients() {
+        const res = await fetch(`${this.baseUrl}/Apis_blocks/get_clients`);
+        return await res.json();
+    }
+
     async getHouse(formData) {
         const aptLabel = formData.get("apt_label");
         const floorNb = formData.get("floor_nb");
@@ -1093,6 +1136,20 @@ function locationChanges() {
                 console.log(json);
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     ui.displayReservedHouses(json.CONTENT);
+                } else {
+                    defaultReportsHandling(json);
+                }
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
+    } else if (hash === "#list-clients") {
+        fetcher
+            .getClients()
+            .then((json) => {
+                console.log(json);
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    ui.displayClients(json.CONTENT);
                 } else {
                     defaultReportsHandling(json);
                 }

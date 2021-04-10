@@ -105,6 +105,17 @@ class Apis_blocks extends Controller
         echo json_encode($reserved_houses);
     }
 
+    public function get_clients()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "GET") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
+        $clients = $this->ApiModel->get_clients();
+        echo json_encode($clients);
+    }
+
     public function insert_client()
     {
         if ($_SERVER['REQUEST_METHOD'] !== "POST") {

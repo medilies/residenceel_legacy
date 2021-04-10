@@ -245,6 +245,29 @@ class Api extends Database
         }
     }
 
+    public function get_clients()
+    {
+        $query = "SELECT CONCAT(clients.client_lname, ' ', clients.client_fname) AS client_name, clients.client_cni_number, clients.client_phone, clients.client_email, clients.client_profession, clients.client_birthday, clients.client_birthplace, clients.client_marital_status, COUNT(deals.deal_id) AS deals_number
+        FROM clients
+        JOIN deals ON deals.client_id = clients.client_id
+        GROUP BY clients.client_id
+        ORDER BY clients.client_lname";
+
+        try {
+            $clients = $this->Selector->prepare($query);
+            $clients->execute();
+
+            if ($clients->rowCount() > 0) {
+                $clients = $clients->fetchAll();
+                return Utility::create_report('SUCCESSFUL_FETCH', $clients);
+            } else {
+                return Utility::create_report('NOTICE', "0 clients enregistrés");
+            }
+        } catch (PDOException $e) {
+            return Utility::create_report('ERROR', $e->getMessage());
+        }
+    }
+
     public function search_house($apt_label, $floor_nb)
     {
         if (!ValidationBlock::apt($apt_label)) {
