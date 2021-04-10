@@ -690,6 +690,70 @@ class UI {
         this.formsContainer.appendChild(displayFreeHouses_div);
     }
 
+    displayReservedHouses(reservedptsData) {
+        const displayReservedHouses_div = document.createElement("div");
+
+        let table = `
+        <table>
+            <caption>La liste des maisons reservées</caption>
+            <tr>
+                <th class="w3">Bloc</th>
+                <th class="w3">Numéro</th>
+                <th class="w3">Etage</th>
+                <th class="w3">Tag maison</th>
+                <th class="w3">Type</th>
+                <th class="w5">CNI n°</th>
+                <th class="">Téléphone</th>
+                <th class="w9">Email</th>
+                <th class="w7">Date d'accord</th>
+                <th class="w9">Annuler l'accord (7j+)</th>
+            </tr>
+        `;
+        reservedptsData.forEach((house) => {
+            let rowColor = "";
+            if (house.deal_confirmed === 1 && house.deal_closed === 1) {
+                rowColor = "bg-green-ll";
+            } else if (house.deal_confirmed === 0 && house.deal_closed === 0) {
+                rowColor = "bg-orange-ll";
+            } else if (house.deal_confirmed === 1 && house.deal_closed === 0) {
+                rowColor = "bg-blue-ll";
+            }
+
+            let ActionCell;
+            if (
+                (new Date() - new Date(house.transaction_date)) /
+                    1000 /
+                    3600 /
+                    24 >
+                7
+            ) {
+                ActionCell = this.transaction_cancelDealForm(house.deal_code);
+                rowColor = "bg-red-l";
+            } else {
+                ActionCell = "/";
+            }
+
+            table += `
+            <tr class="${rowColor}">
+                <td>${house.bloc_id}</td>
+                <td>${house.door_number}</td>
+                <td class="bold">${house.floor_nb}</td>
+                <td class="bold">${house.apt_label}</td>
+                <td>${house.apt_type}</td>
+                <td>${house.client_cni_number}</td>
+                <td>${house.client_phone}</td>
+                <td>${house.client_email}</td>
+                <td>${house.transaction_date}</td>
+                <td>${ActionCell}</td>
+            </tr>
+            `;
+        });
+        table += "</table>";
+        displayReservedHouses_div.innerHTML = table;
+
+        this.formsContainer.appendChild(displayReservedHouses_div);
+    }
+
     /**
      *
      * @param {object} reportObj contains 2 keys:
@@ -917,6 +981,13 @@ class Fetcher {
         return await res.json();
     }
 
+    async getReservedHouses() {
+        const res = await fetch(
+            `${this.baseUrl}/Apis_blocks/get_reserved_houses`
+        );
+        return await res.json();
+    }
+
     async getHouse(formData) {
         const aptLabel = formData.get("apt_label");
         const floorNb = formData.get("floor_nb");
@@ -1008,6 +1079,20 @@ function locationChanges() {
                 // console.log(json);
                 if (json.REPORT === "SUCCESSFUL_FETCH") {
                     ui.displayFreeHouses(json.CONTENT);
+                } else {
+                    defaultReportsHandling(json);
+                }
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
+    } else if (hash === "#list-apt-taken") {
+        fetcher
+            .getReservedHouses()
+            .then((json) => {
+                console.log(json);
+                if (json.REPORT === "SUCCESSFUL_FETCH") {
+                    ui.displayReservedHouses(json.CONTENT);
                 } else {
                     defaultReportsHandling(json);
                 }

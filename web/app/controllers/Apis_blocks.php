@@ -51,6 +51,11 @@ class Apis_blocks extends Controller
 
     public function get_blocs()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== "GET") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
         $blocs = $this->ApiModel->get_blocs();
         echo json_encode($blocs);
     }
@@ -80,8 +85,24 @@ class Apis_blocks extends Controller
 
     public function get_free_houses()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== "GET") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
         $free_houses = $this->ApiModel->get_free_houses();
         echo json_encode($free_houses);
+    }
+
+    public function get_reserved_houses()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "GET") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
+        $reserved_houses = $this->ApiModel->get_reserved_houses();
+        echo json_encode($reserved_houses);
     }
 
     public function insert_client()

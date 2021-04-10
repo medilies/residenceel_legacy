@@ -77,4 +77,4 @@ GRANT SELECT, UPDATE ON hm.* TO 'UPDATOR'@'%';
 CREATE USER 'DELETOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
 GRANT SELECT, DELETE ON hm.* TO 'DELETOR'@'%';
 
--- SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));

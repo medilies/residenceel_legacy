@@ -284,22 +284,42 @@ h5,
 }
 
 .bg {
-    background: var(--primary-color);
+    background-color: var(--primary-color);
 }
 .bg4 {
-    background: var(--primary-color4);
+    background-color: var(--primary-color4);
 }
 .bg-l-grey {
-    background: #ddd;
+    background-color: #ddd;
 }
 .bg-ll-grey {
-    background: #eee;
+    background-color: #eee;
 }
 .bg-lll-grey {
-    background: #e8e8e8;
+    background-color: #e8e8e8;
 }
 .bg-w {
-    background: #fff;
+    background-color: #fff;
+}
+tr:nth-child(2n + 2).bg-orange-ll,
+tr:nth-child(2n + 3).bg-orange-ll,
+.bg-orange-ll {
+    background-color: rgb(255, 180, 126);
+}
+tr:nth-child(2n + 2).bg-green-ll,
+tr:nth-child(2n + 3).bg-green-ll,
+.bg-green-ll {
+    background-color: rgb(126, 255, 126);
+}
+tr:nth-child(2n + 2).bg-blue-ll,
+tr:nth-child(2n + 3).bg-blue-ll,
+.bg-blue-ll {
+    background-color: rgb(126, 203, 255);
+}
+tr:nth-child(2n + 2).bg-red-l,
+tr:nth-child(2n + 3).bg-red-l,
+.bg-red-l {
+    background-color: rgb(255, 66, 66);
 }
 
 .white {
@@ -321,6 +341,9 @@ h5,
 }
 .w5 {
     width: 5rem;
+}
+.w7 {
+    width: 7rem;
 }
 .w9 {
     width: 9rem;

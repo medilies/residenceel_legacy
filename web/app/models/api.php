@@ -199,8 +199,7 @@ class Api extends Database
     {
         $query = "SELECT apts.bloc_id, houses.door_number, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real
             FROM houses
-            JOIN apts
-            ON houses.apt_label = apts.apt_label
+            JOIN apts ON houses.apt_label = apts.apt_label
             WHERE houses.house_id
                 NOT IN (SELECT deals.house_id FROM deals)
             ORDER BY apts.bloc_id, houses.floor_nb, houses.apt_label";
@@ -218,7 +217,32 @@ class Api extends Database
         } catch (PDOException $e) {
             return Utility::create_report('ERROR', $e->getMessage());
         }
+    }
 
+    public function get_reserved_houses()
+    {
+        $query = "SELECT apts.bloc_id, houses.door_number, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, clients.client_cni_number, clients.client_phone, clients.client_email, deals.deal_code, deals.deal_confirmed, deals.deal_closed, DATE(transactions.transaction_date) AS transaction_date
+        FROM clients
+        JOIN deals ON deals.client_id = clients.client_id
+        JOIN transactions ON transactions.deal_id = deals.deal_id
+        JOIN houses ON houses.house_id = deals.house_id
+        JOIN apts ON apts.apt_label = houses.apt_label
+        GROUP BY deals.deal_id
+        ORDER BY apts.bloc_id, houses.floor_nb, houses.apt_label";
+
+        try {
+            $houses = $this->Selector->prepare($query);
+            $houses->execute();
+
+            if ($houses->rowCount() > 0) {
+                $houses = $houses->fetchAll();
+                return Utility::create_report('SUCCESSFUL_FETCH', $houses);
+            } else {
+                return Utility::create_report('NOTICE', "0 maisons réservées");
+            }
+        } catch (PDOException $e) {
+            return Utility::create_report('ERROR', $e->getMessage());
+        }
     }
 
     public function search_house($apt_label, $floor_nb)
