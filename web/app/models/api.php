@@ -273,6 +273,7 @@ class Api extends Database
         if (!ValidationBlock::apt($apt_label)) {
             return Utility::create_report('INVALID_DATA', "Tag d'apartement $apt_label est invalid! FORME VALIDE: $[A-Z][0-9]-[1-8]");
         }
+        $floor_nb = intval($floor_nb);
 
         $query2 = "SELECT apts.bloc_id, houses.door_number, houses.floor_nb, apts.apt_label, apts.apt_type, houses.house_code, houses.surface, houses.surface_real, clients.client_cni_number
             FROM houses
@@ -352,19 +353,19 @@ class Api extends Database
 
             if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_cni_number' for key 'clients\.client_cni_number'/", $e->getMessage())) {
 
-                return Utility::create_report('ERROR', "Le numéro de la CNI $client_cni_number est déja enregistré pour un autre client");
+                Utility::create_error_report('ERROR', "Le numéro de la CNI $client_cni_number est déja enregistré pour un autre client");
             }
             //
             else if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_phone' for key 'clients\.client_phone'/", $e->getMessage())) {
 
-                return Utility::create_report('ERROR', "Le numéro de téléphone $client_phone est déja enregistré pour un autre client");
+                Utility::create_error_report('ERROR', "Le numéro de téléphone $client_phone est déja enregistré pour un autre client");
             }
             //
             else if (preg_match("/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry '$client_email' for key 'clients\.client_email'/", $e->getMessage())) {
 
-                return Utility::create_report('ERROR', "L'émail $client_email est déja enregistré pour un autre client");
+                Utility::create_error_report('ERROR', "L'émail $client_email est déja enregistré pour un autre client");
             }
-            return Utility::create_report('ERROR', $e->getMessage());
+            Utility::create_error_report('ERROR', $e->getMessage());
         }
     }
 }

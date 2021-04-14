@@ -633,10 +633,10 @@ class UI {
 
     transaction_cancelDealForm(dealCode) {
         const transaction_cancelDealFormContainer = `
-            <form onsubmit="transaction_cancelDealForm_onsubmit(event)" class="mt05 mb1">
+            <form onsubmit="transaction_cancelDealForm_onsubmit(event)" class="mt05">
                 <input type="hidden" name="deal_code" value="${dealCode}"/>
                 <input type="password" name="pwd"  autocomplete class="w5 inline"/>
-                <button type="submit" class="wp1 inline btn critical-btn"><i class="fas fa-unlink"></i> Annuler l'accord</button>
+                <button type="submit" class="wp1 inline btn critical-btn"><i class="fas fa-trash-alt"></i> Accord</button>
             </form>
         `;
 

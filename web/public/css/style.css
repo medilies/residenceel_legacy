@@ -149,7 +149,7 @@ aside {
 }
 
 main {
-    min-height: calc(100vh - 2rem);
+    min-height: calc(100vh - 1rem);
     position: relative;
 }
 
@@ -182,7 +182,7 @@ main {
 }
 
 footer {
-    height: 2rem;
+    height: 1rem;
 }
 
 .max-width-container {

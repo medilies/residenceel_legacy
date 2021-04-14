@@ -97,7 +97,7 @@ class Apis_pdf extends Controller
         $qr_code_file = PROJECT_ROOT . "/public/assets/img/qr_codes/$deal_code.png";
 
         if (!file_exists($qr_code_file)) {
-            $qr_code = "Transaction: $deal_code, CNI client: $client_cni_number";
+            $qr_code = "Accord: $deal_code, CNI client: $client_cni_number";
             echo QRcode::png($qr_code, $qr_code_file);
         }
 

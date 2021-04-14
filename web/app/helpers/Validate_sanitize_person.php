@@ -5,7 +5,8 @@ class Validate_sanitize_person
     public static function income(string $income)
     {
         if (filter_var($income, FILTER_VALIDATE_INT, ['min_range' => 0, 'max_range' => 1000000]) === false) {
-            Utility::create_error_report('ERROR', "Revenu '$income' est invalid");
+            echo json_encode(Utility::create_report('INVALID_DATA', "Revenu '$income' est invalid"));
+            die;
         }
 
         $income = intval($income);
@@ -15,7 +16,8 @@ class Validate_sanitize_person
     public static function email(string $email)
     {
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            Utility::create_error_report('ERROR', "Email '$email' est invalid");
+            echo json_encode(Utility::create_report('INVALID_DATA', "Email '$email' est invalid"));
+            die;
         }
 
         $email = strtolower($email);
@@ -25,7 +27,8 @@ class Validate_sanitize_person
     public static function cni(string $cni)
     {
         if (filter_var($cni, FILTER_VALIDATE_INT) === false) {
-            Utility::create_error_report('ERROR', "CNI n° '$cni' est invalid");
+            echo json_encode(Utility::create_report('INVALID_DATA', "CNI n° '$cni' est invalid"));
+            die;
         }
 
         return $cni;
@@ -34,7 +37,8 @@ class Validate_sanitize_person
     public static function date(string $date)
     {
         if (strtotime($date) === false) {
-            Utility::create_error_report('ERROR', "Date '$date' est invalide");
+            echo json_encode(Utility::create_report('INVALID_DATA', "Date '$date' est invalide"));
+            die;
         }
 
         return $date;
@@ -42,11 +46,12 @@ class Validate_sanitize_person
 
     public static function marital_status(string $marital_status)
     {
-        $marital_status = ucwords(strtolower($marital_status));
+        $marital_status = ucfirst(strtolower($marital_status));
         $marital_status_list = ['Célibataire', 'Marié(e)', 'Séparé(e)', 'Divorcé(e)', 'Veuf ou veuve'];
 
         if (!in_array($marital_status, $marital_status_list)) {
-            Utility::create_error_report('ERROR', "Etat marital '$marital_status' est invalide");
+            echo json_encode(Utility::create_report('INVALID_DATA', "Etat marital '$marital_status' est invalide"));
+            die;
         }
 
         return $marital_status;

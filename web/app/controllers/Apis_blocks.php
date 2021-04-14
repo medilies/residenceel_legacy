@@ -148,7 +148,7 @@ class Apis_blocks extends Controller
         }
 
         if (!empty($missing_data)) {
-            Utility::create_error_report('ERROR', 'Il manque des champs mondataire dans le formulaire');
+            Utility::create_error_report('MISSING_DATA', 'Il manque des champs mondataire dans le formulaire');
         }
     }
 

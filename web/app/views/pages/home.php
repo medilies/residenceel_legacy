@@ -12,7 +12,7 @@
 
         <div class="pl1">
             <p class="header5"><i class="fas fa-list"></i> Lister <i class="fas fa-chevron-down body-text"></i></p>
-            <a class="header5 aside-href ml1"href="#list-apt-taken" aside-href>Maisons resérvés/vendus</a>
+            <a class="header5 aside-href ml1"href="#list-apt-taken" aside-href>Maisons resérvées/vendus</a>
             <a class="header5 aside-href ml1" href="#list-apt-free" aside-href>Maisons libres</a>
             <a class="header5 aside-href ml1" href="#list-clients" aside-href>Clients</a>
         </div>
@@ -33,8 +33,11 @@
     </main>
 
     <footer class="bg4 white">
-        <div class="max-width-container">
-            ...
+        <div class="max-width-container tiny-text">
+            Support: <i class="fas fa-mobile-alt"></i> 0675026963
+            <a href="mailto:medilies.contact@gmail.com" target="_Blank">
+                <i class="fal fa-at"></i> medilies.contact@gmail.com
+            </a>
         </div>
     </footer>
 </div>
