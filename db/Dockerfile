@@ -6,4 +6,4 @@ RUN apt-get update || apt-get update \
 
 # Give structure to the initialised db
 #   MAYBE: this works when data volume is empty
-COPY ./db.sql /docker-entrypoint-initdb.d/db.sql
+COPY ./backups/hm.sql /docker-entrypoint-initdb.d/hm.sql

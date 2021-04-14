@@ -4,6 +4,8 @@ services:
     web:
         image: hm-web
         build: ./web
+        depends_on:
+            - db
         ports:
             - 50080:80
         networks:
@@ -16,15 +18,15 @@ services:
             - TZ=CET
 
     db:
-        image: mysql:8.0
-        # build: ./db
+        image: hm-db
+        build: ./db
         restart: always
-        command: --default-authentication-plugin=mysql_native_password
+        command: mysqld --default-authentication-plugin=mysql_native_password --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
         networks:
             - web-db
             - admin-db
         volumes:
-            - house-manager:/var/lib/mysql
+            - houses-clients:/var/lib/mysql
         secrets:
             - db_root_password
             - db_database
@@ -35,6 +37,8 @@ services:
 
     phpmyadmin:
         image: phpmyadmin:5.0-apache
+        depends_on:
+            - db
         ports:
             - 51080:80
         networks:
@@ -47,12 +51,29 @@ services:
             - PMA_USER=root
             - PMA_PASSWORD_FILE=/run/secrets/db_root_password
 
+    databacker:
+        image: databack/mysql-backup
+        depends_on:
+            - db
+        restart: always
+        networks:
+            - admin-db
+        env_file:
+            - ./db/secrets/databacker.env
+        environment:
+            - DB_DUMP_FREQ=1440
+            - DB_DUMP_BEGIN=+1
+            - DB_DUMP_DEBUG=true
+            - DB_DUMP_SAFECHARS=true
+        volumes:
+            - ./db/backups:/backup
+
 networks:
     web-db:
     admin-db:
 
 volumes:
-    house-manager:
+    houses-clients:
 
 secrets:
     db_root_password:
