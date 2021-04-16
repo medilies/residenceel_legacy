@@ -585,8 +585,19 @@ class UI {
                     <th>Confirmation</th>
                 </tr>
             `;
+
             client.client_transactions.forEach((transaction) => {
                 if (transaction.deal_code === deal.deal_code) {
+                    let ActionCell;
+                    if (transaction.payment_confirmed === 0) {
+                        ActionCell = `
+                        <td>
+                        <button class="wp1 btn critical-btn2" onclick="ui.transaction_showOverlayForm(event)" value="${transaction.transaction_id}" confirm><i class="fas fa-stamp"></i></button>
+                        </td>`;
+                    } else {
+                        ActionCell = "<td class='colored-text2'>Confirmé</td>";
+                    }
+
                     table += `
                     <tr>
                     <td>${transaction.transaction_id}</td>
@@ -594,20 +605,9 @@ class UI {
                     <td>${transaction.payment}</td>
                     <td>${transaction.payment_chars}</td>
                     <td>${transaction.payment_type}</td>
+                    ${ActionCell}
+                    </tr>
                     `;
-                    if (transaction.payment_confirmed === 0) {
-                        table += `
-                        <td>${ui.transaction_confirmTransactionForm(
-                            transaction.transaction_id
-                        )}</td>
-                            </tr>
-                            `;
-                    } else if (transaction.payment_confirmed === 1) {
-                        table += `
-                            <td class="colored-text2">Confirmé</td>
-                            </tr>
-                            `;
-                    }
                 }
             });
             table += "</table><hr>";
@@ -617,6 +617,37 @@ class UI {
 
         searchClient_resultDiv.innerHTML = clientData;
         searchClient_resultDiv.innerHTML += dealsDiv;
+    }
+
+    transaction_showOverlayForm(e) {
+        const overlay = document.createElement("div");
+        overlay.classList.add("overlay", "flex-center");
+
+        const formContainer = document.createElement("div");
+        formContainer.classList.add("bg-w", "p2");
+
+        if (
+            e.target.hasAttribute("confirm") ||
+            e.target.parentElement.hasAttribute("confirm")
+        )
+            formContainer.innerHTML = this.transaction_confirmTransactionForm(
+                e.target.value
+            );
+        else if (
+            e.target.hasAttribute("cancel") ||
+            e.target.parentElement.hasAttribute("cancel")
+        ) {
+            formContainer.innerHTML = this.transaction_cancelDealForm(
+                e.target.value
+            );
+        }
+
+        overlay.appendChild(formContainer);
+
+        document.body.appendChild(overlay);
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.remove();
+        });
     }
 
     transaction_confirmTransactionForm(transactionId) {
@@ -703,10 +734,10 @@ class UI {
                 <th class="w3">Tag maison</th>
                 <th class="w3">Type</th>
                 <th class="w5">CNI n°</th>
-                <th class="">Téléphone</th>
+                <th class="w7">Téléphone</th>
                 <th class="w9">Email</th>
                 <th class="w7">Date d'accord</th>
-                <th class="w9">Annuler l'accord (7j+)</th>
+                <th class="w5">(7j+)</th>
             </tr>
         `;
         reservedptsData.forEach((house) => {
@@ -727,7 +758,7 @@ class UI {
                     24 >
                 7
             ) {
-                ActionCell = this.transaction_cancelDealForm(house.deal_code);
+                ActionCell = `<button class="wp1 inline btn critical-btn2" onclick="ui.transaction_showOverlayForm(event)" value="${house.deal_code}" cancel><i class="fas fa-trash-alt"></i></button>`;
                 rowColor = "bg-red-l";
             } else {
                 ActionCell = "/";

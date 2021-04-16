@@ -16,7 +16,7 @@
 <p class="m0 text12">Logement promotionnel de type <?=$apt_type?> Bloc : <?=$bloc_id?> Etage : <?=$floor_nb?></p>
 <p class="m0 text12">Résidence : <?=$apt_label?></p>
 <p class="m0 text12">Superficie de : <?=$surface_real?></p>
-<p class="m0 text12">Pour le prix de : .....................................</p>
+<p class="m0 text12">Pour le prix de : </p>
 
 <p class="m0 mt9 bold u">LE POSTULANT :</p>
 <p class="m0 text12"><span class="bold">Déclare</span> avoir pris connaissance de l’ensemble des indications relatives au projet, notamment en termes de localisation, de surface, de prix de cession.</p>

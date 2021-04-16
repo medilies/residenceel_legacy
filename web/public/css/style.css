@@ -129,6 +129,9 @@ tr:nth-child(2n + 2) {
 tr:nth-child(2n + 3) {
     background: #def;
 }
+tr:hover:nth-child(n + 2) {
+    box-shadow: inset 0px 0px 5px 2px #333;
+}
 
 /**************************************************************************/
 /*                        LAYOUT ELEMENTS  */
@@ -468,6 +471,16 @@ tr:nth-child(2n + 3).bg-red-l,
     background-color: hsl(3, 100%, 30%);
     color: #ffff;
 }
+.rm-btn2 {
+    margin: 0;
+    border-radius: 3px;
+    border: none;
+    color: #fff;
+    background-color: hsl(3, 100%, 30%);
+}
+.rm-btn2:hover {
+    background-color: hsl(3, 100%, 20%);
+}
 .critical-btn {
     border-color: hsl(256, 100%, 30%);
     background: #fff;
@@ -476,6 +489,16 @@ tr:nth-child(2n + 3).bg-red-l,
 .critical-btn:hover {
     background-color: hsl(256, 100%, 30%);
     color: #ffff;
+}
+.critical-btn2 {
+    margin: 0;
+    border-radius: 3px;
+    border: none;
+    color: #fff;
+    background-color: hsl(256, 100%, 30%);
+}
+.critical-btn2:hover {
+    background-color: hsl(256, 100%, 20%);
 }
 
 .pointer {

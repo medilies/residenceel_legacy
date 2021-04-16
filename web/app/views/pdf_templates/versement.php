@@ -11,7 +11,7 @@
 <p class="bold">Mr / Mme ;</p>
 <p><?=$client_name?> Née le <?=$client_birthday?> à <?=$client_birthplace?> portant la carte national d’identité (CNI) n° : <?=$client_cni_number?> délivrer le : <?=$client_cni_date?></p>
 
-<p>Déclare avoir versé le montant de : <?=$payment?></p>
+<p>Déclare avoir versé le montant de : <?=$payment?> dinars algériens</p>
 
 <img src='<?=$qr_code_file?>' width="100px">
 
