@@ -75,7 +75,7 @@ class Apis_pdf extends Controller
             $reservation_data = $reservation_data['CONTENT'];
         }
 
-        if ($reservation_data["deal_confirmed"] === '0') {
+        if ($reservation_data["deal_confirmed"] === 0) {
             echo json_encode(Utility::create_report('ERROR', "PROHIBITED ACTION: Aucun versement n'est fait"));
             die;
         }
@@ -85,6 +85,29 @@ class Apis_pdf extends Controller
         $qr_code_file = $this->create_qr_code_png($deal_code, $client_cni_number);
 
         $pdf = $this->create_pdf_content("reservation", $reservation_data, $transaction_id);
+        $this->output_pdf($pdf);
+    }
+
+    public function keys(string $deal_code)
+    {
+        $deal_data = $this->ApiModel->keys($deal_code);
+
+        if ($deal_data['REPORT'] !== 'SUCCESSFUL_FETCH') {
+            echo json_encode($deal_data);
+            die;
+        } else {
+            $deal_data = $deal_data['CONTENT'];
+        }
+
+        if ($deal_data["deal_closed"] === 0) {
+            echo json_encode(Utility::create_report('ERROR', "PROHIBITED ACTION: Accord non finalisé"));
+            die;
+        }
+
+        $client_cni_number = $deal_data['client_cni_number'];
+        $qr_code_file = $this->create_qr_code_png($deal_code, $client_cni_number);
+
+        $pdf = $this->create_pdf_content("keys", $deal_data);
         $this->output_pdf($pdf);
     }
 
@@ -114,7 +137,7 @@ class Apis_pdf extends Controller
         $mpdf->Output();
     }
 
-    private function create_pdf_content(string $template_name, array $pdf_data, int $transaction_id): string
+    private function create_pdf_content(string $template_name, array $pdf_data, int $transaction_id = null): string
     {
         foreach ($pdf_data as $key => $value) {
             $$key = $value;

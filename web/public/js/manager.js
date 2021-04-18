@@ -1493,6 +1493,11 @@ function transaction_closeDealForm_onsubmit(e) {
 
     formSubmitter.closeDeal(formData).then((json) => {
         if (json.REPORT === "SUCCESSFUL_UPDATE") {
+            e.target.innerHTML = `
+                <a href='${location.origin}/Apis_pdf/keys/${formData.get(
+                "deal_code"
+            )}' target='_blank' class="clickable-text"><i class="fas fa-file-pdf"></i> ATTESTATION DE REMISE DES CLEFS</a>
+                `;
             ui.appendReportDiv(json);
         } else {
             e.target.querySelector("button").style.display = "inline-block";
