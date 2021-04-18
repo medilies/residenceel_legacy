@@ -543,6 +543,7 @@ class UI {
 
         let dealsDiv = "";
         client.client_deals.forEach((deal) => {
+            let allTransactionsConfirmed = true;
             let dealState;
             if (deal.deal_confirmed === 1 && deal.deal_closed === 0) {
                 dealState = "Reservation confirmée";
@@ -555,10 +556,10 @@ class UI {
             }
 
             dealsDiv += `
-                <h4>
+                <h2>
                     Apartement <span class="colored-text1">${deal.apt_label}</span>
                     à l'étage <span class="colored-text1">${deal.floor_nb}</span>
-                </h4>
+                </h2>
                 <p class="tiny-text">Bloc <span class="bold">${deal.bloc_id}</span> - Porte n° <span class="bold">${deal.door_number}</span> - Type <span class="bold">${deal.apt_type}</span> - Surface <span class="bold">${deal.surface_real}</span></p>
                 <p>Accord: <span class="bold">${deal.deal_code}</span> <span class="colored-text2">"${dealState}"</span></p>
             `;
@@ -577,12 +578,12 @@ class UI {
             let table = `
             <table class="mb1">
                 <tr>
-                    <th>Transaction</th>
-                    <th>Fait le</th>
-                    <th>Montant</th>
-                    <th class="w9">Montant en lettres</th>
-                    <th>Payé par</th>
-                    <th>Confirmation</th>
+                    <th class="w3">Transaction</th>
+                    <th class="w7">Fait le</th>
+                    <th class="w5">Montant</th>
+                    <th class="w7">Montant en lettres</th>
+                    <th class="w5">Payé par</th>
+                    <th class="w5">Confirmation</th>
                 </tr>
             `;
 
@@ -594,6 +595,7 @@ class UI {
                         <td>
                         <button class="wp1 btn critical-btn2" onclick="ui.transaction_showOverlayForm(event)" value="${transaction.transaction_id}" confirm><i class="fas fa-stamp"></i></button>
                         </td>`;
+                        allTransactionsConfirmed = false;
                     } else {
                         ActionCell = "<td class='colored-text2'>Confirmé</td>";
                     }
@@ -610,9 +612,28 @@ class UI {
                     `;
                 }
             });
-            table += "</table><hr>";
+            table += "</table>";
 
-            dealsDiv += table;
+            if (dealState !== "Maison acquise" && allTransactionsConfirmed)
+                table += `            
+            <form onsubmit="newDeal_addTransactionForm_onsubmit(event)" class="p05 ph2 bg-lll-grey">
+                <input type="hidden" name="deal_code" value="${deal.deal_code}">
+
+                <label required for="payment"><i class="fas fa-cash-register"></i> Montant</label>
+                <input name="payment" type="number" min="100000" max="10000000" required class="w9">
+
+                <div class="flex-row-base ml1">                
+                    <label for="payment_type"><i class="fas fa-money-bill"></i> Cache</label>
+                    <input name="payment_type" type="radio" value="cache" required class="w3"/>            
+                    <label for"=payment_type"><i class="fas fa-money-check"></i> Bank</label>
+                    <input name="payment_type" type="radio" value="bank" required class="w3"/>
+                </div>
+
+                <button type="submit" class="inline wp1 btn add-btn"><i class="fas fa-scroll"></i>  Nouvelle tranche</button>
+            </form>
+           `;
+
+            dealsDiv += table + "<hr class='mt1'>";
         });
 
         searchClient_resultDiv.innerHTML = clientData;
@@ -756,7 +777,8 @@ class UI {
                     1000 /
                     3600 /
                     24 >
-                7
+                    7 &&
+                house.deal_confirmed === 0
             ) {
                 ActionCell = `<button class="wp1 inline btn critical-btn2" onclick="ui.transaction_showOverlayForm(event)" value="${house.deal_code}" cancel><i class="fas fa-trash-alt"></i></button>`;
                 rowColor = "bg-red-l";
@@ -979,6 +1001,17 @@ class FormSubmitter {
             method: "post",
             body: formData,
         });
+        return await res.json();
+    }
+
+    async addTransaction(formData) {
+        const res = await fetch(
+            `${this.baseUrl}/Apis_transactions/add_transaction`,
+            {
+                method: "post",
+                body: formData,
+            }
+        );
         return await res.json();
     }
 
@@ -1357,6 +1390,30 @@ function newDeal_newDealResult(firstTransaction) {
     }
 }
 
+function newDeal_addTransactionForm_onsubmit(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    formSubmitter.addTransaction(formData).then((json) => {
+        console.log(json);
+
+        if (json.REPORT === "SUCCESSFUL_INSERTION") {
+            const transactionId = json.CONTENT.transaction_id;
+
+            const report = {
+                REPORT: "SUCCESSFUL_INSERTION",
+                CONTENT: `La transaction ${transactionId} est enregistré avec succes`,
+            };
+            ui.appendReportDiv(report);
+
+            e.target.innerHTML = `<a href="${fetcher.baseUrl}/Apis_pdf/ordre/${transactionId}" target="_blank" class="clickable-text"><i class="fas fa-file-pdf"></i>  ORDRE DE VERSEMENT</a>`;
+        } else {
+            defaultReportsHandling(json);
+        }
+    });
+}
+
 /**
  *
  * @param {SubmitEvent} e
@@ -1405,6 +1462,7 @@ function transaction_confirmTransactionForm_onsubmit(e) {
                 <br>
                 <a href='${location.origin}/Apis_pdf/reservation/${json.CONTENT}' target='_blank' class="clickable-text"><i class="fas fa-file-pdf"></i> CONTRAT DE RESERVATION</a>
                 `;
+            ui.appendReportDiv(json);
         } else {
             defaultReportsHandling(json);
         }
@@ -1421,7 +1479,7 @@ function transaction_cancelDealForm_onsubmit(e) {
         if (json.REPORT === "SUCCESSFUL_DELETE") {
             ui.appendReportDiv(json);
         } else {
-            e.target.querySelector("button").style.display = "block";
+            e.target.querySelector("button").style.display = "inline-block";
             defaultReportsHandling(json);
         }
     });
@@ -1437,7 +1495,7 @@ function transaction_closeDealForm_onsubmit(e) {
         if (json.REPORT === "SUCCESSFUL_UPDATE") {
             ui.appendReportDiv(json);
         } else {
-            e.target.querySelector("button").style.display = "block";
+            e.target.querySelector("button").style.display = "inline-block";
             defaultReportsHandling(json);
         }
     });

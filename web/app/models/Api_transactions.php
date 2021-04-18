@@ -65,6 +65,56 @@ class Api_transactions extends Database
     }
 
     // >>>>>>>>>> LACK VALIDATION
+    public function add_transaction($transaction_data)
+    {
+        $query1 = "SELECT transaction_id FROM transactions WHERE deal_id = :deal_id AND payment_confirmed = 0";
+
+        $query2 = "INSERT INTO transactions(deal_id, payment, payment_chars, payment_type) VALUES(:deal_id, :payment, :payment_chars, :payment_type)";
+
+        $deal_code = $transaction_data['deal_code'];
+        $deal_id = $this->get_deal_id($deal_code);
+        $payment = intval($transaction_data['payment']);
+        $Int = new NumberFormatter('fr', NumberFormatter::SPELLOUT);
+        $payment_chars = $Int->format($payment);
+        $payment_type = $transaction_data['payment_type'];
+
+        try {
+            $check = $this->Selector->prepare($query1);
+            $check->bindParam(':deal_id', $deal_id, PDO::PARAM_INT);
+            $check->execute();
+
+            if ($check->rowCount() === 1) {
+                return Utility::create_report('ERROR', 'Le client a déja un versement non-confirmé');
+            } else if ($check->rowCount() > 1) {
+                return Utility::create_report('INTERNAL_ERROR', "PLUS QU'UN SEUL VERSEMENT NON-CONFIRME POUR LE MEME ACCORD");
+            }
+
+            $versement = $this->Insertor->prepare($query2);
+            $versement->bindParam(':deal_id', $deal_id, PDO::PARAM_INT);
+            $versement->bindParam(':payment', $payment, PDO::PARAM_INT);
+            $versement->bindParam(':payment_chars', $payment_chars, PDO::PARAM_STR);
+            $versement->bindParam(':payment_type', $payment_type, PDO::PARAM_STR);
+
+            if ($versement->execute()) {
+
+                $transaction_id = $this->Selector->prepare($query1);
+                $transaction_id->bindParam(':deal_id', $deal_id, PDO::PARAM_INT);
+                $transaction_id->execute();
+
+                if ($transaction_id->rowCount() === 1) {
+                    $transaction_id = $transaction_id->fetch();
+                    return Utility::create_report('SUCCESSFUL_INSERTION', $transaction_id);
+                } else if ($client_id->rowCount() === 0) {
+                    return Utility::create_report('INTERNAL_ERROR', "WEIRD");
+                }
+            }
+
+        } catch (PDOException $e) {
+            return Utility::create_report('ERROR', $e->getMessage());
+        }
+    }
+
+    // >>>>>>>>>> LACK VALIDATION
     public function get_client_deals($key, $value)
     {
         if (!in_array($key, ["client_cni_number", "client_email", "client_phone"])) {
@@ -147,8 +197,10 @@ class Api_transactions extends Database
             $confirm_transaction = $this->Updator->prepare($query);
             $confirm_transaction->execute();
 
-            if ($confirm_transaction->rowCount() !== 1) {
-                return Utility::create_report('INTERNAL_ERROR', "CAN'T UPDATE TRANSACTION!");
+            if ($confirm_transaction->rowCount() === 0) {
+                return Utility::create_report('INTERNAL_ERROR', "Erreur durant la confirmation du versement");
+            } else if ($confirm_transaction->rowCount() > 1) {
+                return Utility::create_report('INTERNAL_ERROR', "WEIRD2");
             }
 
             $deal = $this->Selector->query($query2);

@@ -20,6 +20,17 @@ class Apis_transactions extends Controller
         echo json_encode($result);
     }
 
+    public function add_transaction()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+            echo json_encode(Utility::create_report('ERROR', "wrong access method"));
+            return;
+        }
+
+        $result = $this->ApiModel->add_transaction($_POST);
+        echo json_encode($result);
+    }
+
     public function get_client_deals($key, $value)
     {
         if ($_SERVER['REQUEST_METHOD'] !== "GET") {
