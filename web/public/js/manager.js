@@ -647,20 +647,21 @@ class UI {
         const formContainer = document.createElement("div");
         formContainer.classList.add("bg-w", "p2");
 
+        const idCode = e.currentTarget.value;
+
         if (
             e.target.hasAttribute("confirm") ||
             e.target.parentElement.hasAttribute("confirm")
-        )
+        ) {
+            if (!Number.isInteger(parseInt(idCode))) return;
             formContainer.innerHTML = this.transaction_confirmTransactionForm(
-                e.target.value
+                idCode
             );
-        else if (
+        } else if (
             e.target.hasAttribute("cancel") ||
             e.target.parentElement.hasAttribute("cancel")
         ) {
-            formContainer.innerHTML = this.transaction_cancelDealForm(
-                e.target.value
-            );
+            formContainer.innerHTML = this.transaction_cancelDealForm(idCode);
         }
 
         overlay.appendChild(formContainer);

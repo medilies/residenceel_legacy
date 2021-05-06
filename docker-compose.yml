@@ -4,6 +4,7 @@ services:
     web:
         image: hm-web
         build: ./web
+        restart: always
         depends_on:
             - db
         ports:
