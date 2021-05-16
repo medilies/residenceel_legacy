@@ -65,6 +65,15 @@ CREATE TABLE transactions(
     FOREIGN KEY (deal_id) REFERENCES deals(deal_id) on DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE users(
+    user_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    user_fname VARCHAR(60) NOT NULL,
+    user_lname VARCHAR(60) NOT NULL,
+    pass VARCHAR(60) NOT NULL,
+    user_email VARCHAR(60) UNIQUE NOT NULL,
+    user_phone VARCHAR(14) UNIQUE NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE USER 'SELECTOR'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
 GRANT SELECT ON hm.* TO 'SELECTOR'@'%';
 

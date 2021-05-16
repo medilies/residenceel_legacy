@@ -2,6 +2,19 @@
 <div id="aside" class="bg white">
     <aside class="pt1">
 
+        <div>
+            <div class="flex-column-center">
+                <i class="fas fa-user-circle fa-5x"></i>
+                <p> <?=$_SESSION["user_fname"]?> </p>
+            </div>
+            <div class="flex-center mt05">
+                <a class="mr1 ml1"> <i class="fas fa-user-edit"></i> </a>
+                <a href="/apis_user/logout" class="mr1 ml1"> <i class="fas fa-sign-out-alt"></i> </a>
+            </div>
+        </div>
+
+        <hr class="mt1">
+
         <div class="pl1">
             <a class="header5 aside-href " href="#init-deal" aside-href>    <i class="fas fa-handshake"></i>    Nouveau accord  </a>
         </div>

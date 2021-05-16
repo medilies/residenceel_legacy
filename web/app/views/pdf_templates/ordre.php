@@ -12,8 +12,8 @@
 <p> Ouvert au prés de:  <span class="bold"> CNEP Agance </span> : Abbassi Mokhtar Essadikia </p>
 <p class="mb36 center-text">    COMPTE N°   <span class="bold"> 999 7000 304 65 38  </span> </p>
 
-<p> Montant en chiffres :   <?=$payment?> </p>
-<p> Montant en lettres :    <?=$payment_chars?>    </p>
+<p> Montant en chiffres :   <?=$payment?> dinars algériens  </p>
+<p> Montant en lettres :    <?=$payment_chars?>    dinars algériens </p>
 <p> Représentant un versement de réservation.   </p>
 <p> Le client s'engage à effectuer ce versement dans un délai de sept (07) jours à fin d'être réservataire auprès de notre entreprise d’un appartement de type  <?=$apt_type?>  avec la surface <?=$surface_real?>, à l’étage   <?=$floor_nb?>,   au bloc   <?=$bloc_id?>.  </p>
 

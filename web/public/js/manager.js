@@ -1194,7 +1194,7 @@ function locationChanges() {
             .catch((err) => {
                 console.warn(err);
             });
-    } else if (hash === "#list-apt-taken") {
+    } else if (hash === "#list-apt-taken" || hash === "") {
         fetcher
             .getReservedHouses()
             .then((json) => {

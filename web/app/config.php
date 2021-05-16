@@ -11,7 +11,7 @@ define('PROJECT_ROOT', dirname(__DIR__));
 // for redirect and href ...
 // !!! if URL_ROOT changes .htaccess file must be edited
 $URL_ROOT = '';
-$SITE_NAME = 'http://' . $_SERVER['SERVER_NAME'] . $URL_ROOT;
+$SITE_NAME = get_site_name() . $URL_ROOT;
 $APP_NAME = 'Gestionnaire des maisons';
 
 date_default_timezone_set('Africa/Algiers');
@@ -21,3 +21,8 @@ $LANG = 'fr';
 
 // fomated as "controller/method" + every controller MUST have an index() method
 $DEFAULT_URL = "pages/index";
+
+function get_site_name()
+{
+    return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER["SERVER_PORT"];
+}

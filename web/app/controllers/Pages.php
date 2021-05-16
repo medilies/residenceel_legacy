@@ -16,6 +16,16 @@ class Pages extends Controller
         $this->view('pages/home', $data);
     }
 
+    public function login()
+    {
+        $data = [
+            'title' => 'Home',
+            'stylesheets_array' => [],
+            'scripts_array' => ["login"],
+        ];
+        $this->view('pages/login', $data);
+    }
+
     /**
      * Return Anchor element to be echoed in nav bar
      */

@@ -26,4 +26,9 @@ class Utility
         echo json_encode(self::create_report($type, $content));
         die;
     }
+
+    public static function redirect(string $path): void
+    {
+        header("Location: " . $GLOBALS['SITE_NAME'] . $path);
+    }
 }

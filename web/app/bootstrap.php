@@ -4,10 +4,12 @@
  */
 
 spl_autoload_register(function ($class_name) {
-    if (file_exists(PROJECT_ROOT . '/app/libraries/' . $class_name . '.php')) {
-        require_once PROJECT_ROOT . '/app/libraries/' . $class_name . '.php';
-    } elseif (file_exists(PROJECT_ROOT . '/app/helpers/' . $class_name . '.php')) {
-        require_once PROJECT_ROOT . '/app/helpers/' . $class_name . '.php';
+    if (file_exists(PROJECT_ROOT . "/app/libraries/$class_name.php")) {
+        require_once PROJECT_ROOT . "/app/libraries/$class_name.php";
+    } elseif (file_exists(PROJECT_ROOT . "/app/helpers/$class_name.php")) {
+        require_once PROJECT_ROOT . "/app/helpers/$class_name.php";
+    } elseif (file_exists(PROJECT_ROOT . "/app/orm/$class_name.php")) {
+        require_once PROJECT_ROOT . "/app/orm/$class_name.php";
     } elseif ($class_name === 'QRcode') {
         require_once PROJECT_ROOT . '/app/vendor/phpqrcode/qrlib.php';
     }

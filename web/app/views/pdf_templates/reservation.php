@@ -15,7 +15,7 @@
 <p class="m0 mt9 bold u">   Objet de cession   </p>
 <p class="m0 text12">   Logement promotionnel de type <?=$apt_type?> Bloc : <?=$bloc_id?> Etage : <?=$floor_nb?>    </p>
 <p class="m0 text12">   Résidence : <?=$apt_label?> </p>
-<p class="m0 text12">   Adresse :  </p>
+<p class="m0 text12">   Adresse :  bir el djir pos 50 ilot 09oran   </p>
 <p class="m0 text12">   Superficie de : <?=$surface_real?>  </p>
 <p class="m0 text12">   Pour le prix de :   </p>
 
