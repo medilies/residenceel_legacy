@@ -100,39 +100,54 @@ class Router
     {
 
         $open_urls = [
-            "pages/index",
-            "pages/home",
-            "pages/about",
-            "pages/contact",
+            "apis_blocks/index",
+            "apis_user/index",
         ];
 
         $login_required_urls = [
-
+            'pages/index',
+            'apis_user/logout',
         ];
-        $login_required_fallbackpage = "pages/index";
 
         $no_login_required_urls = [
-
+            "pages/login",
+            "apis_user/login",
         ];
-        $no_login_required_fallbackpage = "pages/index";
 
-        // if (in_array($url, $open_urls)) {
-        //     return;
-        // }
-        // //*
-        // elseif (!isset($_SESSION['id']) && in_array($url, $login_required_urls)) {
-        //     Utility::redirect($login_required_fallbackpage);
-        //     die;
-        // }
-        // //*
-        // elseif (isset($_SESSION['id']) && !empty($_SESSION['id']) && in_array($url, $no_login_required_urls)) {
-        //     Utility::redirect($no_login_required_fallbackpage);
-        //     die;
-        // }
-        // //*
-        // elseif (!in_array($url, $login_required_urls) && !in_array($url, $no_login_required_urls)) {
-        //     echo "Le lien est incorrect :/ <br> ERR_CODE 404";
-        //     die;
-        // }
+        // ANY
+        if (in_array($url, $open_urls)) {
+            return;
+        }
+
+        // USER
+        if (isset($_SESSION['id']) && !empty($_SESSION['id'])) {
+            if (
+                in_array($url, $login_required_urls) ||
+                preg_match("/^Apis_pdf\/.*$/", $url) ||
+                preg_match("/^Apis_blocks\/.*$/", $url) ||
+                preg_match("/^Apis_transactions\/.*$/", $url)
+            ) {
+                return;
+            } else {
+                Utility::redirect("");
+                die;
+            }
+        }
+        // VISITOR
+        elseif (!isset($_SESSION['id']) || empty($_SESSION['id'])) {
+            if (in_array($url, $no_login_required_urls)) {
+                return;
+            } else {
+                Utility::redirect("/pages/login");
+                die;
+            }
+        }
+        // 404
+        elseif (!in_array($url, $login_required_urls) &&
+            !in_array($url, $no_login_required_urls)) {
+
+            echo "Le lien est incorrect :/ <br> ERR_CODE 404";
+            die;
+        }
     }
 }

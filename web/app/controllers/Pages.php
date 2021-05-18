@@ -20,28 +20,10 @@ class Pages extends Controller
     {
         $data = [
             'title' => 'Home',
-            'stylesheets_array' => [],
+            'stylesheets_array' => ["login"],
             'scripts_array' => ["login"],
         ];
         $this->view('pages/login', $data);
-    }
-
-    /**
-     * Return Anchor element to be echoed in nav bar
-     */
-    protected function nav_element(string $id, string $class_list, string $href, string $textnode, string $fontawesome)
-    {
-
-        $element = "<a id='$id' class='$class_list' href='/$href'>";
-
-        $element .= ">";
-
-        if ($fontawesome !== "") {
-            $element .= "<i class='$fontawesome'></i> ";
-        }
-        $element .= "$textnode</a>";
-
-        return $element;
     }
 
 }

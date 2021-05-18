@@ -1,5 +1,6 @@
 <?php ob_start();?>
 
+<div class="form-wrapper">
 <div id="msg"></div>
 <form >
     <label for="mail">  <i class="fas fa-envelope"></i>  Email   </label>
@@ -10,6 +11,7 @@
 
     <button type="submit">  Connecter  </button>
 </form>
+</div>
 
 
 <?php $content = ob_get_clean();?>
